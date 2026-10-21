@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        const origError = console.error;
+        console.error = function(...args) {
+          if (args.some(arg => typeof arg === 'string' && (arg.includes('[vite]') || arg.includes('WebSocket')))) {
+            return;
+          }
+          if (args.some(arg => arg instanceof Error && (arg.message.includes('[vite]') || arg.message.includes('WebSocket')))) {
+            return;
+          }
+          origError.apply(console, args);
+        };
+        window.addEventListener('error', function(e) {
+          if (e.message && (e.message.includes('WebSocket') || e.message.includes('[vite]'))) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(e) {
+          if (e.reason && (String(e.reason).includes('WebSocket') || String(e.reason).includes('[vite]'))) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <title>Sahabat Puyuh Hataswa - Sistem Manajemen &amp; Analisis Keuangan</title>
+    <meta name="description" content="Sistem Manajemen &amp; Analisis Keuangan Peternakan Burung Puyuh Modern dengan AI Advisor." />
+    <meta property="og:title" content="Sahabat Puyuh Hataswa - Sistem Manajemen &amp; Analisis Keuangan" />
+    <meta property="og:description" content="Sistem Manajemen &amp; Analisis Keuangan Peternakan Burung Puyuh Modern dengan AI Advisor." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/aistudio/IMG-20250913-WA0211_74ca8a90.jpg" />
+    <link rel="icon" type="image/jpeg" href="/assets/aistudio/IMG-20250913-WA0211_74ca8a90.jpg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#022c22" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="PuyuhHataswa" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

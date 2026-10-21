@@ -1,0 +1,6 @@
+{
+  "name": "Sahabat Puyuh Hataswa",
+  "description": "Sistem Manajemen & Analisis Keuangan Peternakan Burung Puyuh Modern dengan AI Advisor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
