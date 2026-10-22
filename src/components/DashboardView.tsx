@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EggRecord, FeedRecord, PopulationRecord, ExpenseRecord, FarmMetrics, UserRole } from '../types/quail';
-import { formatRupiah, formatNumber } from '../utils/calculations';
+import { formatRupiah, formatNumber, formatDecimal } from '../utils/calculations';
 import {
   Egg,
   Wheat,
@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
+import { EggTrendChart } from './EggTrendChart';
 
 interface DashboardViewProps {
   metrics: FarmMetrics;
@@ -38,11 +39,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenEditActivePopulation,
 }) => {
   const isOwner = currentRole === 'owner';
-  const [chartMetric, setChartMetric] = useState<'kg' | 'hdp'>('kg');
-
-  // Last 14 days sorted chronologically
-  const recentEggs = [...eggRecords].slice(-14);
-  const maxKg = Math.max(...recentEggs.map((e) => e.totalWeightKg), 50);
+  const recentEggRecords = [...eggRecords].sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <div className="space-y-6">
@@ -273,85 +270,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Production Chart & Health Indicators */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Chart Column */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Grafik Tren Produksi Telur (14 Hari Terakhir)</h2>
-              <p className="text-xs text-slate-500">Pantau konsistensi kuantitas dan rasio bertelur kawanan puyuh.</p>
-            </div>
-            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg self-start">
-              <button
-                onClick={() => setChartMetric('kg')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition ${
-                  chartMetric === 'kg' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Bobot (Kg)
-              </button>
-              <button
-                onClick={() => setChartMetric('hdp')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition ${
-                  chartMetric === 'hdp' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                HDP (%)
-              </button>
-            </div>
-          </div>
-
-          {/* SVG Line / Bar Visualization */}
-          <div className="mt-6">
-            <div className="h-56 w-full flex items-end gap-2 pt-6 pb-2 px-1">
-              {recentEggs.map((record) => {
-                const dayLabel = record.date.slice(8); // DD
-                const pcs = record.goodEggsPcs + record.brokenEggsPcs;
-                const hdpValue = Number(((pcs / metrics.activePopulation) * 100).toFixed(1));
-                const heightPercent = chartMetric === 'kg'
-                  ? Math.min(Math.round((record.totalWeightKg / maxKg) * 100), 100)
-                  : Math.min(Math.round((hdpValue / 100) * 100), 100);
-
-                return (
-                  <div key={record.id} className="flex-1 flex flex-col items-center gap-1 group relative">
-                    {/* Tooltip on hover */}
-                    <div className="absolute -top-12 z-20 hidden group-hover:flex flex-col items-center bg-slate-900 text-white text-[10px] py-1 px-2 rounded-lg pointer-events-none shadow-lg whitespace-nowrap">
-                      <span className="font-semibold">{record.date}</span>
-                      <span>
-                        {chartMetric === 'kg' ? `${record.totalWeightKg} kg (${formatNumber(pcs)} butir)` : `HDP: ${hdpValue}%`}
-                      </span>
-                    </div>
-
-                    <div className="w-full bg-slate-100 rounded-t-md h-44 flex items-end overflow-hidden">
-                      <div
-                        style={{ height: `${heightPercent}%` }}
-                        className={`w-full transition-all duration-300 rounded-t-md ${
-                          chartMetric === 'kg'
-                            ? 'bg-amber-500 group-hover:bg-amber-400'
-                            : 'bg-emerald-500 group-hover:bg-emerald-400'
-                        }`}
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-medium tabular-nums">{dayLabel}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Benchmark Legend */}
-            <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-3">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-3 h-3 rounded-xs ${chartMetric === 'kg' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                  <span>{chartMetric === 'kg' ? 'Bobot Telur Panen (Kg)' : 'Hen-Day Production (%)'}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <span className="inline-block w-4 border-t-2 border-dashed border-emerald-500" />
-                  <span>Target Standar Puyuh (80% HDP)</span>
-                </div>
-              </div>
-              <span className="text-[11px] text-slate-400">Rata-rata 14 Hari: 44.8 kg / hari</span>
-            </div>
-          </div>
+        {/* Main Chart Column: Recharts Egg Harvest Productivity Trend (Default: 7 Hari Terakhir) */}
+        <div className="lg:col-span-2">
+          <EggTrendChart
+            records={eggRecords}
+            activeLayerPopulation={metrics.activeLayerPopulation || 5000}
+          />
         </div>
 
         {/* Diagnostic & Technical Standards Column */}
@@ -469,7 +393,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {recentEggs.slice(-5).reverse().map((record) => {
+              {recentEggRecords.slice(-5).reverse().map((record) => {
                 const totalPcs = record.goodEggsPcs + record.brokenEggsPcs;
                 const avgG = totalPcs > 0 ? ((record.totalWeightKg * 1000) / totalPcs).toFixed(1) : '0';
                 const brokenPct = totalPcs > 0 ? ((record.brokenEggsPcs / totalPcs) * 100).toFixed(1) : '0';
@@ -480,7 +404,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <td className="py-3 px-4 text-slate-600">{record.kandang}</td>
                     <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-800">{formatNumber(record.goodEggsPcs)}</td>
                     <td className="py-3 px-4 text-right tabular-nums text-rose-600">{record.brokenEggsPcs}</td>
-                    <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900">{record.totalWeightKg} kg</td>
+                    <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900">{formatDecimal(record.totalWeightKg)} kg</td>
                     <td className="py-3 px-4 text-right tabular-nums text-slate-700 font-medium">
                       {avgG} g
                     </td>

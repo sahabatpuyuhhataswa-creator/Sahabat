@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { EggSaleRecord } from '../types/quail';
 import { formatRupiah } from '../utils/calculations';
 import { X, ShoppingBag, Save } from 'lucide-react';
+import { DecimalInput } from './DecimalInput';
 
 interface EditEggSaleModalProps {
   isOpen: boolean;
@@ -168,13 +169,13 @@ export const EditEggSaleModal: React.FC<EditEggSaleModalProps> = ({
               <label className="block text-[10px] font-semibold text-slate-700 mb-1">
                 Volume (Kg):
               </label>
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
+              <DecimalInput
+                allowDecimal={true}
+                min={0}
                 required
                 value={quantityKg}
-                onChange={(e) => handleKgChange(parseFloat(e.target.value) || 0)}
+                onChange={(num) => handleKgChange(num)}
+                placeholder="0.0"
                 className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-extrabold text-slate-900"
               />
             </div>
@@ -182,11 +183,12 @@ export const EditEggSaleModal: React.FC<EditEggSaleModalProps> = ({
               <label className="block text-[10px] font-semibold text-slate-600 mb-1">
                 Estimasi Butir:
               </label>
-              <input
-                type="number"
-                min="0"
+              <DecimalInput
+                allowDecimal={false}
+                min={0}
                 value={quantityPcs}
-                onChange={(e) => setQuantityPcs(parseInt(e.target.value) || 0)}
+                onChange={(num) => setQuantityPcs(num)}
+                placeholder="0"
                 className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700"
               />
             </div>
@@ -194,11 +196,12 @@ export const EditEggSaleModal: React.FC<EditEggSaleModalProps> = ({
               <label className="block text-[10px] font-semibold text-slate-600 mb-1">
                 Jumlah Tray/Baki:
               </label>
-              <input
-                type="number"
-                min="0"
+              <DecimalInput
+                allowDecimal={false}
+                min={0}
                 value={trayCount}
-                onChange={(e) => setTrayCount(parseInt(e.target.value) || 0)}
+                onChange={(num) => setTrayCount(num)}
+                placeholder="0"
                 className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700"
               />
             </div>
@@ -209,13 +212,13 @@ export const EditEggSaleModal: React.FC<EditEggSaleModalProps> = ({
               <label className="block text-[11px] font-semibold text-slate-600 mb-1">
                 Harga Jual per Kg (Rp):
               </label>
-              <input
-                type="number"
-                min="1000"
-                step="500"
+              <DecimalInput
+                allowDecimal={false}
+                min={0}
                 required
                 value={pricePerKg}
-                onChange={(e) => setPricePerKg(parseInt(e.target.value) || 0)}
+                onChange={(num) => setPricePerKg(num)}
+                placeholder="33000"
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
               />
             </div>

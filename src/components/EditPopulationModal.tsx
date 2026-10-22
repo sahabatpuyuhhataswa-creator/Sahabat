@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PopulationRecord } from '../types/quail';
 import { formatNumber } from '../utils/calculations';
 import { X, Activity, Check, Sparkles, AlertCircle, Bird, HelpCircle } from 'lucide-react';
+import { DecimalInput } from './DecimalInput';
 
 interface EditPopulationModalProps {
   isOpen: boolean;
@@ -246,13 +247,13 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
+                    <DecimalInput
+                      allowDecimal={false}
+                      min={0}
                       required
                       value={layerCount}
-                      onChange={(e) => setLayerCount(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={(num) => setLayerCount(Math.max(0, num))}
+                      placeholder="0"
                       className="flex-1 px-3 py-2 text-base font-bold text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                     />
                     <span className="font-semibold text-slate-600">ekor</span>
@@ -316,13 +317,13 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
+                    <DecimalInput
+                      allowDecimal={false}
+                      min={0}
                       required
                       value={growerCount}
-                      onChange={(e) => setGrowerCount(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={(num) => setGrowerCount(Math.max(0, num))}
+                      placeholder="0"
                       className="flex-1 px-3 py-2 text-base font-bold text-slate-900 bg-white border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                     />
                     <span className="font-semibold text-slate-600">ekor</span>
@@ -493,15 +494,15 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                   <label className="block text-[10px] font-semibold text-slate-600 mb-1">
                     Populasi Awal:
                   </label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={singleStartingCount}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value) || 0;
-                      setSingleStartingCount(v);
-                      handleRecalculateSingle(v, singleMortality, singleCulled, singleAdditions, singleTransferred);
+                    onChange={(num) => {
+                      setSingleStartingCount(num);
+                      handleRecalculateSingle(num, singleMortality, singleCulled, singleAdditions, singleTransferred);
                     }}
+                    placeholder="0"
                     className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold"
                   />
                 </div>
@@ -509,15 +510,15 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                   <label className="block text-[10px] font-semibold text-rose-600 mb-1">
                     Mati (Ekor):
                   </label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={singleMortality}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value) || 0;
-                      setSingleMortality(v);
-                      handleRecalculateSingle(singleStartingCount, v, singleCulled, singleAdditions, singleTransferred);
+                    onChange={(num) => {
+                      setSingleMortality(num);
+                      handleRecalculateSingle(singleStartingCount, num, singleCulled, singleAdditions, singleTransferred);
                     }}
+                    placeholder="0"
                     className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-rose-600"
                   />
                 </div>
@@ -525,15 +526,15 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                   <label className="block text-[10px] font-semibold text-amber-600 mb-1">
                     Afkir (Ekor):
                   </label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={singleCulled}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value) || 0;
-                      setSingleCulled(v);
-                      handleRecalculateSingle(singleStartingCount, singleMortality, v, singleAdditions, singleTransferred);
+                    onChange={(num) => {
+                      setSingleCulled(num);
+                      handleRecalculateSingle(singleStartingCount, singleMortality, num, singleAdditions, singleTransferred);
                     }}
+                    placeholder="0"
                     className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-amber-600"
                   />
                 </div>
@@ -544,15 +545,15 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                   <label className="block text-[10px] font-semibold text-emerald-600 mb-1">
                     Mutasi Masuk / Tambah:
                   </label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={singleAdditions}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value) || 0;
-                      setSingleAdditions(v);
-                      handleRecalculateSingle(singleStartingCount, singleMortality, singleCulled, v, singleTransferred);
+                    onChange={(num) => {
+                      setSingleAdditions(num);
+                      handleRecalculateSingle(singleStartingCount, singleMortality, singleCulled, num, singleTransferred);
                     }}
+                    placeholder="0"
                     className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-emerald-600"
                   />
                 </div>
@@ -560,11 +561,12 @@ export const EditPopulationModal: React.FC<EditPopulationModalProps> = ({
                   <label className="block text-[10px] font-semibold text-slate-900 mb-1">
                     Populasi Akhir (Aktif):
                   </label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={singleActiveCount}
-                    onChange={(e) => setSingleActiveCount(parseInt(e.target.value) || 0)}
+                    onChange={(num) => setSingleActiveCount(num)}
+                    placeholder="0"
                     className="w-full px-2.5 py-1.5 bg-slate-100 border border-slate-300 rounded-lg text-xs font-extrabold text-slate-900"
                   />
                 </div>

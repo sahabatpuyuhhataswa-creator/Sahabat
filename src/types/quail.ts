@@ -151,3 +151,43 @@ export interface FarmMetrics {
   totalEggSalesKg: number; // Total Kg Terjual
   eggStockKg: number; // Sisa Stok Telur di Gudang (Kg)
 }
+
+export interface CustomerRecord {
+  id: string;
+  name: string;
+  phone: string; // WhatsApp number
+  address: string;
+  customerType: 'Pengepul Besar' | 'Agen Telur' | 'Warung/Retail' | 'Konsumen Langsung';
+  defaultPricePerKg?: number;
+  paymentTerms: 'Tunai' | 'Tempo 3 Hari' | 'Tempo 7 Hari' | 'Tempo 14 Hari';
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ExpansionPlan {
+  id: string;
+  name: string;
+  quailCount: number;
+  procurementType: 'DOQ (1-3 Hari)' | 'Pullet Siap Telur (30-35 Hari)';
+  cageCost: number;
+  birdCost: number;
+  broodingFeedCost: number;
+  equipmentCost: number;
+  eggPricePerKg: number;
+  feedPricePerKg: number;
+  expectedHdp: number;
+  monthlyOpCost: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface FarmAlert {
+  id: string;
+  type: 'critical' | 'warning' | 'info';
+  category: 'pakan' | 'mortalitas' | 'produksi' | 'piutang';
+  title: string;
+  message: string;
+  actionLabel?: string;
+  actionTab?: string;
+  date: string;
+}

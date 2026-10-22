@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EggRecord, UserRole } from '../types/quail';
-import { formatNumber } from '../utils/calculations';
+import { formatNumber, formatDecimal } from '../utils/calculations';
 import {
   Plus,
   Search,
@@ -276,7 +276,7 @@ export const EggRecordingView: React.FC<EggRecordingViewProps> = ({
                         {r.brokenEggsPcs > 0 ? `+${r.brokenEggsPcs}` : '0'}
                       </td>
                       <td className="py-3 px-4 text-right tabular-nums font-extrabold text-slate-900">
-                        {formatNumber(r.totalWeightKg, 1)} kg
+                        {formatDecimal(r.totalWeightKg)} kg
                       </td>
                       <td className="py-3 px-4 text-right tabular-nums text-slate-700 font-medium">
                         {avgWeight} g

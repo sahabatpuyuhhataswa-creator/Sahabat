@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FeedRecord, UserRole } from '../types/quail';
-import { formatRupiah, formatNumber } from '../utils/calculations';
+import { formatRupiah, formatNumber, formatDecimal } from '../utils/calculations';
 import { Plus, Search, Download, Trash2, Wheat, Calculator } from 'lucide-react';
 
 interface FeedRecordingViewProps {
@@ -308,7 +308,7 @@ export const FeedRecordingView: React.FC<FeedRecordingViewProps> = ({
                     </td>
                     <td className="py-3 px-4 font-medium text-slate-900">{r.feedBrand}</td>
                     <td className="py-3 px-4 text-slate-600">{r.feedType}</td>
-                    <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900">{r.quantityKg} kg</td>
+                    <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900">{formatDecimal(r.quantityKg)} kg</td>
                     <td className="py-3 px-4 text-right tabular-nums text-slate-600">{r.sackCount}</td>
                     <td className="py-3 px-4 text-right tabular-nums text-slate-600">
                       {isOwner ? formatRupiah(r.pricePerKg) : '***'}

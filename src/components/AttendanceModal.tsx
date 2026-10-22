@@ -12,6 +12,7 @@ import {
   Clock,
   User,
 } from 'lucide-react';
+import { DecimalInput } from './DecimalInput';
 
 interface AttendanceModalProps {
   isOpen: boolean;
@@ -398,11 +399,11 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
                 <Thermometer className="w-3.5 h-3.5 text-rose-500" />
                 <span>Suhu Ruangan (°C)</span>
               </label>
-              <input
-                type="number"
-                step="0.5"
+              <DecimalInput
+                allowDecimal={true}
                 value={temperatureC}
-                onChange={(e) => setTemperatureC(Number(e.target.value))}
+                onChange={(num) => setTemperatureC(num)}
+                placeholder="28.0"
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
               />
             </div>

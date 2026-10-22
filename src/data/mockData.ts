@@ -6,6 +6,8 @@ import {
   ExpenseRecord,
   QuailSeedSaleRecord,
   StaffAttendanceRecord,
+  CustomerRecord,
+  ExpansionPlan,
 } from '../types/quail';
 
 export function getInitialEggRecords(): EggRecord[] {
@@ -467,6 +469,103 @@ export function getInitialAttendanceRecords(): StaffAttendanceRecord[] {
       temperatureC: 26.8,
       tasksDone: 'Selesai shift sore, pintu kandang terkunci aman, lampu 16 jam menyala',
       conditionNotes: 'Semua aman, persediaan air tangki tandon penuh',
+    },
+  ];
+}
+
+export function getInitialCustomerRecords(): CustomerRecord[] {
+  return [
+    {
+      id: 'cust-1',
+      name: 'Pengepul Pak Slamet',
+      phone: '081234567890',
+      address: 'Kios 14 Blok A, Pasar Induk Kramat / Giwangan',
+      customerType: 'Pengepul Besar',
+      defaultPricePerKg: 33000,
+      paymentTerms: 'Tempo 7 Hari',
+      notes: 'Rutin ambil partai 40-50 kg setiap 2-3 hari. Selalu tepat waktu bayar.',
+      createdAt: '2026-08-15',
+    },
+    {
+      id: 'cust-2',
+      name: 'Agen Telur Berkah Ibu Ani',
+      phone: '085712345678',
+      address: 'Jl. Pemuda No. 45, Sentra Telur Unggas',
+      customerType: 'Agen Telur',
+      defaultPricePerKg: 33500,
+      paymentTerms: 'Tunai',
+      notes: 'Pengambilan tiap hari Senin dan Kamis, selalu bayar via transfer Mandiri.',
+      createdAt: '2026-09-02',
+    },
+    {
+      id: 'cust-3',
+      name: 'Warung Soto & Pecel Bu Siti',
+      phone: '081398765432',
+      address: 'Jl. Kaliurang Km 9.5 (Depan Alfamart)',
+      customerType: 'Warung/Retail',
+      defaultPricePerKg: 34000,
+      paymentTerms: 'Tempo 3 Hari',
+      notes: 'Beli telur puyuh matang/mentah untuk sate puyuh soto. Suka telur Grade A segar.',
+      createdAt: '2026-09-18',
+    },
+    {
+      id: 'cust-4',
+      name: 'Rumah Makan Soto Seger Pak Ndut',
+      phone: '082155667788',
+      address: 'Kawasan Kuliner Ringroad Barat',
+      customerType: 'Warung/Retail',
+      defaultPricePerKg: 34000,
+      paymentTerms: 'Tunai',
+      notes: 'Ambil butir Grade A 15-20 kg per minggu untuk sate telur puyuh khas Solo.',
+      createdAt: '2026-10-01',
+    },
+    {
+      id: 'cust-5',
+      name: 'Dapur Olahan Bu Wahyu (Telur Asin & Pindang)',
+      phone: '087812398765',
+      address: 'Desa Sidomoyo, Godean',
+      customerType: 'Konsumen Langsung',
+      defaultPricePerKg: 31000,
+      paymentTerms: 'Tunai',
+      notes: 'Prioritas ambil telur retak ringan atau telur besar untuk olahan puyuh bacem/asin.',
+      createdAt: '2026-10-08',
+    },
+  ];
+}
+
+export function getInitialExpansionPlans(): ExpansionPlan[] {
+  return [
+    {
+      id: 'plan-1',
+      name: 'Ekspansi Kandang Blok D (Kapasitas 2.500 Ekor)',
+      quailCount: 2500,
+      procurementType: 'DOQ (1-3 Hari)',
+      cageCost: 7500000, // Rangka & baterai kawat
+      birdCost: 7500000, // 2.500 x Rp 3.000
+      broodingFeedCost: 4500000, // Pakan starter/grower 35 hari
+      equipmentCost: 2000000, // Pemanas gas brooder, pipa nipel, talang pakan
+      eggPricePerKg: 33000,
+      feedPricePerKg: 8400,
+      expectedHdp: 82,
+      monthlyOpCost: 850000,
+      notes: 'Memanfaatkan lahan samping kandang petelur A. Periode pembesaran 35-40 hari.',
+      createdAt: '2026-10-15',
+    },
+    {
+      id: 'plan-2',
+      name: 'Penambahan Pullet Siap Telur (1.000 Ekor Cepat Produksi)',
+      quailCount: 1000,
+      procurementType: 'Pullet Siap Telur (30-35 Hari)',
+      cageCost: 3200000,
+      birdCost: 12500000, // 1.000 x Rp 12.500
+      broodingFeedCost: 0, // Siap telur langsung masuk kandang layer
+      equipmentCost: 800000,
+      eggPricePerKg: 33000,
+      feedPricePerKg: 8400,
+      expectedHdp: 80,
+      monthlyOpCost: 400000,
+      notes: 'Langsung menghasilkan telur dalam 7-10 hari setelah masuk kandang baterai.',
+      createdAt: '2026-10-20',
     },
   ];
 }

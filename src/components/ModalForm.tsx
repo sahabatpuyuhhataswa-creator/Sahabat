@@ -8,6 +8,7 @@ import {
   QuailSeedSaleRecord,
 } from '../types/quail';
 import { X, Egg, Wheat, Activity, Receipt, Bird, ShoppingBag } from 'lucide-react';
+import { DecimalInput } from './DecimalInput';
 
 interface ModalFormProps {
   type: 'egg' | 'eggSale' | 'feed' | 'population' | 'expense' | 'seedSale' | null;
@@ -333,34 +334,36 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1 text-[11px]">Butir Utuh (Grade A)</label>
-                  <input
-                    type="number"
-                    value={goodEggs}
-                    onChange={(e) => setGoodEggs(Number(e.target.value))}
-                    required
+                  <DecimalInput
+                    allowDecimal={false}
                     min={0}
+                    required
+                    value={goodEggs}
+                    onChange={(num) => setGoodEggs(num)}
+                    placeholder="0"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2 font-bold text-slate-900"
                   />
                 </div>
                 <div>
                   <label className="block text-rose-600 font-semibold mb-1 text-[11px]">Retak / Rusak</label>
-                  <input
-                    type="number"
-                    value={brokenEggs}
-                    onChange={(e) => setBrokenEggs(Number(e.target.value))}
+                  <DecimalInput
+                    allowDecimal={false}
                     min={0}
+                    value={brokenEggs}
+                    onChange={(num) => setBrokenEggs(num)}
+                    placeholder="0"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2 text-rose-600 font-bold"
                   />
                 </div>
                 <div>
                   <label className="block text-amber-700 font-semibold mb-1 text-[11px]">Total Bobot (Kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={weightKg}
-                    onChange={(e) => setWeightKg(Number(e.target.value))}
+                  <DecimalInput
+                    allowDecimal={true}
+                    min={0}
                     required
-                    min={0.1}
+                    value={weightKg}
+                    onChange={(num) => setWeightKg(num)}
+                    placeholder="0.0"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2 font-extrabold text-slate-900"
                   />
                 </div>
@@ -454,33 +457,35 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1 text-[11px]">Volume (Kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0.1"
+                  <DecimalInput
+                    allowDecimal={true}
+                    min={0}
                     value={saleQuantityKg}
-                    onChange={(e) => handleSaleKgChange(parseFloat(e.target.value) || 0)}
+                    onChange={(num) => handleSaleKgChange(num)}
                     required
+                    placeholder="0.0"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2 font-extrabold text-slate-900"
                   />
                 </div>
                 <div>
                   <label className="block text-slate-600 font-semibold mb-1 text-[11px]">Estimasi Butir</label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={saleQuantityPcs}
-                    onChange={(e) => setSaleQuantityPcs(parseInt(e.target.value) || 0)}
+                    onChange={(num) => setSaleQuantityPcs(num)}
+                    placeholder="0"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold text-slate-700"
                   />
                 </div>
                 <div>
                   <label className="block text-slate-600 font-semibold mb-1 text-[11px]">Jumlah Tray</label>
-                  <input
-                    type="number"
-                    min="0"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={saleTrayCount}
-                    onChange={(e) => setSaleTrayCount(parseInt(e.target.value) || 0)}
+                    onChange={(num) => setSaleTrayCount(num)}
+                    placeholder="0"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold text-slate-700"
                   />
                 </div>
@@ -489,13 +494,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Harga Jual per Kg (Rp)</label>
-                  <input
-                    type="number"
-                    step="500"
-                    min="1000"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={salePricePerKg}
-                    onChange={(e) => setSalePricePerKg(Number(e.target.value))}
+                    onChange={(num) => setSalePricePerKg(num)}
                     required
+                    placeholder="33000"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold text-slate-900"
                   />
                 </div>
@@ -639,13 +644,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Jumlah Pakan (Kg)</label>
-                  <input
-                    type="number"
-                    step="0.5"
+                  <DecimalInput
+                    allowDecimal={true}
+                    min={0}
                     value={feedQtyKg}
-                    onChange={(e) => setFeedQtyKg(Number(e.target.value))}
+                    onChange={(num) => setFeedQtyKg(num)}
                     required
-                    min={1}
+                    placeholder="0.0"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -654,13 +659,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                 </div>
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Harga per Kg (Rp)</label>
-                  <input
-                    type="number"
-                    step="100"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={feedPricePerKg}
-                    onChange={(e) => setFeedPricePerKg(Number(e.target.value))}
+                    onChange={(num) => setFeedPricePerKg(num)}
                     required
-                    min={1000}
+                    placeholder="8400"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -732,11 +737,12 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                 </div>
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Umur Kawanan (Hari)</label>
-                  <input
-                    type="number"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={ageDays}
-                    onChange={(e) => setAgeDays(Number(e.target.value))}
-                    min={1}
+                    onChange={(num) => setAgeDays(num)}
+                    placeholder="120"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
                   />
                 </div>
@@ -747,12 +753,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                 <label className="block text-slate-800 font-bold mb-1">
                   Populasi Awal Periode (Ekor)
                 </label>
-                <input
-                  type="number"
+                <DecimalInput
+                  allowDecimal={false}
+                  min={0}
                   value={startingCount}
-                  onChange={(e) => setStartingCount(Number(e.target.value))}
+                  onChange={(num) => setStartingCount(num)}
                   required
-                  min={1}
+                  placeholder="5000"
                   className="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm font-bold text-slate-900"
                 />
                 <span className="text-[10px] text-slate-500 mt-1 block">
@@ -763,21 +770,23 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Kematian (Ekor)</label>
-                  <input
-                    type="number"
-                    value={mortality}
-                    onChange={(e) => setMortality(Number(e.target.value))}
+                  <DecimalInput
+                    allowDecimal={false}
                     min={0}
+                    value={mortality}
+                    onChange={(num) => setMortality(num)}
+                    placeholder="0"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-rose-600 font-bold"
                   />
                 </div>
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Burung Masuk Baru / DOQ (Ekor)</label>
-                  <input
-                    type="number"
-                    value={additions}
-                    onChange={(e) => setAdditions(Number(e.target.value))}
+                  <DecimalInput
+                    allowDecimal={false}
                     min={0}
+                    value={additions}
+                    onChange={(num) => setAdditions(num)}
+                    placeholder="0"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-emerald-600 font-bold"
                   />
                 </div>
@@ -786,11 +795,12 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               {flockType === 'Layer (Petelur)' ? (
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Afkir Dijual (Ekor)</label>
-                  <input
-                    type="number"
-                    value={culled}
-                    onChange={(e) => setCulled(Number(e.target.value))}
+                  <DecimalInput
+                    allowDecimal={false}
                     min={0}
+                    value={culled}
+                    onChange={(num) => setCulled(num)}
+                    placeholder="0"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-amber-600 font-bold"
                   />
                 </div>
@@ -799,11 +809,12 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                   <label className="block text-slate-700 font-medium mb-1">
                     Mutasi Lulus ke Kandang Petelur (Ekor)
                   </label>
-                  <input
-                    type="number"
-                    value={transferred}
-                    onChange={(e) => setTransferred(Number(e.target.value))}
+                  <DecimalInput
+                    allowDecimal={false}
                     min={0}
+                    value={transferred}
+                    onChange={(num) => setTransferred(num)}
+                    placeholder="0"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-blue-600 font-bold"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -815,11 +826,12 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               {culled > 0 && flockType === 'Layer (Petelur)' && (
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Harga Jual per Ekor Afkir (Rp)</label>
-                  <input
-                    type="number"
-                    step="500"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={cullPrice}
-                    onChange={(e) => setCullPrice(Number(e.target.value))}
+                    onChange={(num) => setCullPrice(num)}
+                    placeholder="5500"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold text-emerald-700"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -889,26 +901,27 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Kuantitas (Ekor)</label>
-                  <input
-                    type="number"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={quantityBirds}
-                    onChange={(e) => {
-                      const birds = Number(e.target.value);
-                      setQuantityBirds(birds);
-                      setBoxCount(Math.ceil(birds / 100));
+                    onChange={(num) => {
+                      setQuantityBirds(num);
+                      setBoxCount(Math.ceil(num / 100));
                     }}
                     required
-                    min={1}
+                    placeholder="500"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold"
                   />
                 </div>
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Jumlah Boks (isi 100 ekor)</label>
-                  <input
-                    type="number"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={boxCount}
-                    onChange={(e) => setBoxCount(Number(e.target.value))}
-                    min={1}
+                    onChange={(num) => setBoxCount(num)}
+                    placeholder="5"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
                   />
                 </div>
@@ -917,13 +930,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Harga per Ekor (Rp)</label>
-                  <input
-                    type="number"
-                    step="100"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={pricePerBird}
-                    onChange={(e) => setPricePerBird(Number(e.target.value))}
+                    onChange={(num) => setPricePerBird(num)}
                     required
-                    min={500}
+                    placeholder="3000"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold text-emerald-700"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -1029,13 +1042,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Nominal (Rp)</label>
-                  <input
-                    type="number"
-                    step="1000"
+                  <DecimalInput
+                    allowDecimal={false}
+                    min={0}
                     value={expAmount}
-                    onChange={(e) => setExpAmount(Number(e.target.value))}
+                    onChange={(num) => setExpAmount(num)}
                     required
-                    min={1000}
+                    placeholder="150000"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold text-slate-900"
                   />
                 </div>

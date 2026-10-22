@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EggSaleRecord, UserRole } from '../types/quail';
-import { formatRupiah, formatNumber } from '../utils/calculations';
+import { formatRupiah, formatNumber, formatDecimal } from '../utils/calculations';
 import {
   Plus,
   Search,
@@ -335,7 +335,7 @@ export const EggSalesView: React.FC<EggSalesViewProps> = ({
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right tabular-nums font-extrabold text-slate-900">
-                        {formatNumber(r.quantityKg, 1)} kg
+                        {formatDecimal(r.quantityKg)} kg
                       </td>
                       <td className="py-3 px-4 text-right tabular-nums text-slate-600">
                         {r.trayCount ? `${r.trayCount} tray` : ''}{' '}

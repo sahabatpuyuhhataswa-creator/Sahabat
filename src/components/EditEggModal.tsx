@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { EggRecord } from '../types/quail';
 import { X, Egg, Save } from 'lucide-react';
+import { DecimalInput } from './DecimalInput';
 
 interface EditEggModalProps {
   isOpen: boolean;
@@ -130,12 +131,13 @@ export const EditEggModal: React.FC<EditEggModalProps> = ({
               <label className="block text-[10px] font-semibold text-slate-700 mb-1">
                 Butir Utuh (Grade A):
               </label>
-              <input
-                type="number"
-                min="0"
+              <DecimalInput
+                allowDecimal={false}
+                min={0}
                 required
                 value={goodEggsPcs}
-                onChange={(e) => setGoodEggsPcs(parseInt(e.target.value) || 0)}
+                onChange={(num) => setGoodEggsPcs(num)}
+                placeholder="0"
                 className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
               />
             </div>
@@ -143,11 +145,12 @@ export const EditEggModal: React.FC<EditEggModalProps> = ({
               <label className="block text-[10px] font-semibold text-rose-600 mb-1">
                 Retak / Rusak:
               </label>
-              <input
-                type="number"
-                min="0"
+              <DecimalInput
+                allowDecimal={false}
+                min={0}
                 value={brokenEggsPcs}
-                onChange={(e) => setBrokenEggsPcs(parseInt(e.target.value) || 0)}
+                onChange={(num) => setBrokenEggsPcs(num)}
+                placeholder="0"
                 className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-rose-600"
               />
             </div>
@@ -155,13 +158,13 @@ export const EditEggModal: React.FC<EditEggModalProps> = ({
               <label className="block text-[10px] font-semibold text-amber-700 mb-1">
                 Total Berat (Kg):
               </label>
-              <input
-                type="number"
-                min="0"
-                step="0.1"
+              <DecimalInput
+                allowDecimal={true}
+                min={0}
                 required
                 value={totalWeightKg}
-                onChange={(e) => setTotalWeightKg(parseFloat(e.target.value) || 0)}
+                onChange={(num) => setTotalWeightKg(num)}
+                placeholder="0.0"
                 className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
               />
             </div>

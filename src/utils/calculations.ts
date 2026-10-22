@@ -23,6 +23,13 @@ export function formatNumber(num: number, decimals: number = 0): string {
   }).format(num);
 }
 
+export function formatDecimal(num: number, maxDecimals: number = 8): string {
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxDecimals,
+  }).format(num);
+}
+
 export function calculateFarmMetrics(
   eggs: EggRecord[],
   feeds: FeedRecord[],
