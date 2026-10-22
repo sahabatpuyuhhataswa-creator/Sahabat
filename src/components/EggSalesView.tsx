@@ -25,6 +25,7 @@ interface EggSalesViewProps {
   eggStockKg?: number;
   totalHarvestKg?: number;
   onOpenModal: (type: 'eggSale') => void;
+  onOpenInvoiceModal?: (sale?: EggSaleRecord) => void;
   onDeleteRecord: (id: string) => void;
   onEditRecord?: (record: EggSaleRecord) => void;
   onNavigateToHarvest?: () => void;
@@ -36,6 +37,7 @@ export const EggSalesView: React.FC<EggSalesViewProps> = ({
   eggStockKg = 0,
   totalHarvestKg = 0,
   onOpenModal,
+  onOpenInvoiceModal,
   onDeleteRecord,
   onEditRecord,
   onNavigateToHarvest,
@@ -169,6 +171,14 @@ export const EggSalesView: React.FC<EggSalesViewProps> = ({
               <Plus className="w-4 h-4" />
               <span>+ Input Penjualan Baru</span>
             </button>
+            {onOpenInvoiceModal && (
+              <button
+                onClick={() => onOpenInvoiceModal()}
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition"
+              >
+                <span>📄 Buat Faktur / Nota</span>
+              </button>
+            )}
             <button
               onClick={handleExportCSV}
               className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl border border-slate-200 transition"
@@ -374,6 +384,15 @@ export const EggSalesView: React.FC<EggSalesViewProps> = ({
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className="flex items-center justify-center gap-1">
+                          {onOpenInvoiceModal && (
+                            <button
+                              onClick={() => onOpenInvoiceModal(r)}
+                              className="p-1 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition font-bold text-[11px] flex items-center gap-0.5 px-1.5"
+                              title="Buat Faktur / Nota Cetak"
+                            >
+                              <span>📄 Faktur</span>
+                            </button>
+                          )}
                           {onEditRecord && (
                             <button
                               onClick={() => onEditRecord(r)}

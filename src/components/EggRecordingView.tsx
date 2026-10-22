@@ -20,6 +20,7 @@ interface EggRecordingViewProps {
   records: EggRecord[];
   currentRole: UserRole;
   onOpenModal: (type: 'egg') => void;
+  onOpenVoiceModal?: () => void;
   onDeleteRecord: (id: string) => void;
   onEditRecord?: (record: EggRecord) => void;
   onNavigateToSales?: () => void;
@@ -29,6 +30,7 @@ export const EggRecordingView: React.FC<EggRecordingViewProps> = ({
   records,
   currentRole,
   onOpenModal,
+  onOpenVoiceModal,
   onDeleteRecord,
   onEditRecord,
   onNavigateToSales,
@@ -147,6 +149,14 @@ export const EggRecordingView: React.FC<EggRecordingViewProps> = ({
               <Plus className="w-4 h-4" />
               <span>+ Input Panen Baru</span>
             </button>
+            {onOpenVoiceModal && (
+              <button
+                onClick={onOpenVoiceModal}
+                className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl shadow-xs transition"
+              >
+                <span>🎤 Catat via Suara (VN)</span>
+              </button>
+            )}
             <button
               onClick={handleExportCSV}
               className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl border border-slate-200 transition"

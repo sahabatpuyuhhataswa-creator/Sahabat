@@ -17,6 +17,8 @@ interface NavbarProps {
   currentUser: UserAccount | null;
   onRoleChange: (role: UserRole) => void;
   onOpenModal: (type: 'egg' | 'eggSale' | 'feed' | 'population' | 'expense' | 'seedSale') => void;
+  onOpenVoiceModal: () => void;
+  onOpenInvoiceModal: () => void;
   onResetData: () => void;
   onExportData: () => void;
   onOpenChangePassword: () => void;
@@ -30,6 +32,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentUser,
   onRoleChange,
   onOpenModal,
+  onOpenVoiceModal,
+  onOpenInvoiceModal,
   onResetData,
   onExportData,
   onOpenChangePassword,
@@ -68,19 +72,30 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Zone 2: Middle Status & Actions */}
-        <div className="hidden lg:flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 text-[11px] rounded-lg">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold">Tersimpan Otomatis &amp; Aman</span>
-          </div>
+        <div className="hidden lg:flex items-center gap-2">
+          <button
+            onClick={onOpenVoiceModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg transition shadow-xs"
+            title="Input Suara Lapangan (Voice Note)"
+          >
+            <span>🎤 Catat Suara</span>
+          </button>
+
+          <button
+            onClick={onOpenInvoiceModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition shadow-xs"
+            title="Buat Faktur & Struk Nota Digital"
+          >
+            <span>📄 Buat Faktur</span>
+          </button>
 
           <button
             onClick={onExportData}
             title="Download Cadangan Data JSON Lengkap"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition"
           >
             <Download className="w-3.5 h-3.5 text-slate-400" />
-            <span>Cadangkan JSON</span>
+            <span>JSON</span>
           </button>
 
           <button
@@ -90,10 +105,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
             }}
             title="Kembalikan data sampel bawaan"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-rose-950/40 hover:text-rose-300 text-slate-300 text-xs font-medium rounded-lg border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-rose-950/40 hover:text-rose-300 text-slate-300 text-xs font-medium rounded-lg border border-slate-700 transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset ke Demo</span>
+            <span>Reset</span>
           </button>
         </div>
 

@@ -46,6 +46,12 @@ import { OwnerVerificationModal } from './components/OwnerVerificationModal';
 import { EditPopulationModal } from './components/EditPopulationModal';
 import { EditEggModal } from './components/EditEggModal';
 import { EditEggSaleModal } from './components/EditEggSaleModal';
+import { EditFeedModal } from './components/EditFeedModal';
+import { EditExpenseModal } from './components/EditExpenseModal';
+import { VoiceInputModal } from './components/VoiceInputModal';
+import { InvoiceModal } from './components/InvoiceModal';
+import { EditFeedStockModal } from './components/EditFeedStockModal';
+import { ScaleUpModal } from './components/ScaleUpModal';
 import { CheckCircle2, AlertTriangle, Cloud, HardDrive } from 'lucide-react';
 
 export default function App() {
@@ -74,6 +80,44 @@ export default function App() {
   // Egg Sale Edit Modal States (Khusus Transaksi Penjualan)
   const [isEditEggSaleOpen, setIsEditEggSaleOpen] = useState(false);
   const [editingEggSaleRecord, setEditingEggSaleRecord] = useState<EggSaleRecord | null>(null);
+
+  // Feed Record Edit Modal States
+  const [isEditFeedOpen, setIsEditFeedOpen] = useState(false);
+  const [editingFeedRecord, setEditingFeedRecord] = useState<FeedRecord | null>(null);
+
+  // Expense Record Edit Modal States
+  const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false);
+  const [editingExpenseRecord, setEditingExpenseRecord] = useState<ExpenseRecord | null>(null);
+
+  // Voice Input & Invoice Modal States
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [invoiceSaleRecord, setInvoiceSaleRecord] = useState<EggSaleRecord | null>(null);
+
+  // Feed Stock & Scale Up Modal States
+  const [isEditFeedStockOpen, setIsEditFeedStockOpen] = useState(false);
+  const [isScaleUpModalOpen, setIsScaleUpModalOpen] = useState(false);
+  const [customLayerSacks, setCustomLayerSacks] = useState<number>(() => {
+    const saved = localStorage.getItem('sph_layer_sacks');
+    return saved ? Number(saved) : 18;
+  });
+  const [customGrowerSacks, setCustomGrowerSacks] = useState<number>(() => {
+    const saved = localStorage.getItem('sph_grower_sacks');
+    return saved ? Number(saved) : 8;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sph_layer_sacks', customLayerSacks.toString());
+  }, [customLayerSacks]);
+
+  useEffect(() => {
+    localStorage.setItem('sph_grower_sacks', customGrowerSacks.toString());
+  }, [customGrowerSacks]);
+
+  // Cross-server sync state
+  const [remoteUpdateAvailable, setRemoteUpdateAvailable] = useState(false);
+  const [remotePayload, setRemotePayload] = useState<any>(null);
+  const lastCheckedModifiedRef = React.useRef<string | null>(null);
 
   // Password & Security Modals
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -201,6 +245,41 @@ export default function App() {
     }
   }, []);
 
+  // Cross-server sync polling effect (detects updates from other servers/devices)
+  useEffect(() => {
+    const pollServerSync = async () => {
+      try {
+        const response = await fetch('/api/farm-data');
+        const res = await response.json();
+        if (res.success && res.lastModified) {
+          if (!lastCheckedModifiedRef.current) {
+            lastCheckedModifiedRef.current = res.lastModified;
+          } else if (res.lastModified !== lastCheckedModifiedRef.current && res.data) {
+            setRemotePayload(res.data);
+            setRemoteUpdateAvailable(true);
+          }
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(pollServerSync, 12000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleApplyRemoteSync = () => {
+    if (remotePayload) {
+      if (remotePayload.eggRecords) setEggRecords(remotePayload.eggRecords);
+      if (remotePayload.eggSaleRecords) setEggSaleRecords(remotePayload.eggSaleRecords);
+      if (remotePayload.feedRecords) setFeedRecords(remotePayload.feedRecords);
+      if (remotePayload.populationRecords) setPopulationRecords(remotePayload.populationRecords);
+      if (remotePayload.seedSaleRecords) setSeedSaleRecords(remotePayload.seedSaleRecords);
+      if (remotePayload.expenseRecords) setExpenseRecords(remotePayload.expenseRecords);
+      if (remotePayload.attendanceRecords) setAttendanceRecords(remotePayload.attendanceRecords);
+      setRemoteUpdateAvailable(false);
+      showToast('Data berhasil disinkronkan dengan server pusat lintas perangkat!');
+    }
+  };
+
   // Handle successful login
   const handleLoginSuccess = (user: UserAccount) => {
     setCurrentUser(user);
@@ -267,7 +346,7 @@ export default function App() {
   };
 
   // Calculate live aggregated farm metrics
-  const farmMetrics = calculateFarmMetrics(
+  const baseMetrics = calculateFarmMetrics(
     eggRecords,
     feedRecords,
     populationRecords,
@@ -275,6 +354,12 @@ export default function App() {
     seedSaleRecords,
     eggSaleRecords
   );
+  const farmMetrics = {
+    ...baseMetrics,
+    feedStockSacksLayer: customLayerSacks,
+    feedStockSacksGrower: customGrowerSacks,
+    feedStockSacks: customLayerSacks + customGrowerSacks,
+  };
 
   // Record CRUD handlers (Panen Harian Telur)
   const handleSaveEgg = (data: Omit<EggRecord, 'id' | 'revenue'>) => {
@@ -399,6 +484,16 @@ export default function App() {
     showToast('Beban operasional berhasil dicatat!');
   };
 
+  const handleUpdateFeedRecord = (updated: FeedRecord) => {
+    setFeedRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    showToast('Catatan pakan berhasil diperbarui dan disinkronkan!');
+  };
+
+  const handleUpdateExpenseRecord = (updated: ExpenseRecord) => {
+    setExpenseRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    showToast('Catatan biaya operasional berhasil diperbarui!');
+  };
+
   const handleDeleteEgg = (id: string) => {
     setEggRecords((prev) => prev.filter((r) => r.id !== id));
     showToast('Catatan panen dihapus.');
@@ -494,12 +589,33 @@ export default function App() {
         </div>
       )}
 
+      {/* Remote Sync Notice Banner */}
+      {remoteUpdateAvailable && (
+        <div className="bg-emerald-600 text-white px-4 py-2 text-xs font-semibold flex items-center justify-between sticky top-0 z-50 shadow-md">
+          <div className="flex items-center gap-2">
+            <Cloud className="w-4 h-4 animate-pulse" />
+            <span>Terdeteksi pembaruan data dari server atau perangkat lain!</span>
+          </div>
+          <button
+            onClick={handleApplyRemoteSync}
+            className="px-3 py-1 bg-white text-emerald-800 font-bold rounded-lg shadow-xs hover:bg-emerald-50 transition"
+          >
+            Sinkronkan Sekarang
+          </button>
+        </div>
+      )}
+
       {/* Top Navigation */}
       <Navbar
         currentRole={currentRole}
         currentUser={currentUser}
         onRoleChange={handleRoleChange}
         onOpenModal={(type) => setModalType(type)}
+        onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+        onOpenInvoiceModal={() => {
+          setInvoiceSaleRecord(null);
+          setIsInvoiceModalOpen(true);
+        }}
         onResetData={handleResetData}
         onExportData={handleExportData}
         onOpenChangePassword={() => setIsChangePasswordOpen(true)}
@@ -536,6 +652,8 @@ export default function App() {
                 setEditingPopulationRecord(null);
                 setIsEditPopulationOpen(true);
               }}
+              onOpenEditFeedStock={() => setIsEditFeedStockOpen(true)}
+              onOpenScaleUpModal={() => setIsScaleUpModalOpen(true)}
             />
           )}
 
@@ -544,6 +662,7 @@ export default function App() {
               records={eggRecords}
               currentRole={currentRole}
               onOpenModal={() => setModalType('egg')}
+              onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
               onDeleteRecord={handleDeleteEgg}
               onEditRecord={(record) => {
                 setEditingEggRecord(record);
@@ -560,6 +679,10 @@ export default function App() {
               eggStockKg={farmMetrics.eggStockKg}
               totalHarvestKg={farmMetrics.totalEggHarvestKg}
               onOpenModal={() => setModalType('eggSale')}
+              onOpenInvoiceModal={(sale) => {
+                setInvoiceSaleRecord(sale || null);
+                setIsInvoiceModalOpen(true);
+              }}
               onDeleteRecord={handleDeleteEggSale}
               onEditRecord={(record) => {
                 setEditingEggSaleRecord(record);
@@ -584,6 +707,10 @@ export default function App() {
               currentRole={currentRole}
               onOpenModal={() => setModalType('feed')}
               onDeleteRecord={handleDeleteFeed}
+              onEditRecord={(record) => {
+                setEditingFeedRecord(record);
+                setIsEditFeedOpen(true);
+              }}
               activeLayerPopulation={farmMetrics.activeLayerPopulation}
               activeGrowerPopulation={farmMetrics.activeGrowerPopulation}
             />
@@ -621,6 +748,10 @@ export default function App() {
               currentRole={currentRole}
               onOpenModal={() => setModalType('expense')}
               onDeleteRecord={handleDeleteExpense}
+              onEditRecord={(record) => {
+                setEditingExpenseRecord(record);
+                setIsEditExpenseOpen(true);
+              }}
               onSwitchToOwner={() => handleRoleChange('owner')}
             />
           )}
@@ -734,6 +865,80 @@ export default function App() {
           }}
           record={editingEggSaleRecord}
           onSave={handleUpdateEggSaleRecord}
+        />
+      )}
+
+      {/* Edit Feed Record Modal */}
+      {isEditFeedOpen && editingFeedRecord && (
+        <EditFeedModal
+          isOpen={isEditFeedOpen}
+          onClose={() => {
+            setIsEditFeedOpen(false);
+            setEditingFeedRecord(null);
+          }}
+          record={editingFeedRecord}
+          onSave={handleUpdateFeedRecord}
+        />
+      )}
+
+      {/* Edit Expense Record Modal */}
+      {isEditExpenseOpen && editingExpenseRecord && (
+        <EditExpenseModal
+          isOpen={isEditExpenseOpen}
+          onClose={() => {
+            setIsEditExpenseOpen(false);
+            setEditingExpenseRecord(null);
+          }}
+          record={editingExpenseRecord}
+          onSave={handleUpdateExpenseRecord}
+        />
+      )}
+
+      {/* Voice-to-Text Input Modal (VN) */}
+      {isVoiceModalOpen && (
+        <VoiceInputModal
+          isOpen={isVoiceModalOpen}
+          onClose={() => setIsVoiceModalOpen(false)}
+          onSaveEggHarvest={handleSaveEgg}
+        />
+      )}
+
+      {/* Invoice & Digital Receipt Modal (Faktur) */}
+      {isInvoiceModalOpen && (
+        <InvoiceModal
+          isOpen={isInvoiceModalOpen}
+          onClose={() => {
+            setIsInvoiceModalOpen(false);
+            setInvoiceSaleRecord(null);
+          }}
+          saleRecord={invoiceSaleRecord}
+        />
+      )}
+
+      {/* Edit Feed Stock Modal */}
+      {isEditFeedStockOpen && (
+        <EditFeedStockModal
+          isOpen={isEditFeedStockOpen}
+          onClose={() => setIsEditFeedStockOpen(false)}
+          currentLayerSacks={customLayerSacks}
+          currentGrowerSacks={customGrowerSacks}
+          onSave={(layer, grower) => {
+            setCustomLayerSacks(layer);
+            setCustomGrowerSacks(grower);
+            showToast('Stok pakan gudang berhasil diperbarui!');
+          }}
+        />
+      )}
+
+      {/* Scale Up Recommendation Modal */}
+      {isScaleUpModalOpen && (
+        <ScaleUpModal
+          isOpen={isScaleUpModalOpen}
+          onClose={() => setIsScaleUpModalOpen(false)}
+          metrics={farmMetrics}
+          onNavigateToExpansion={() => {
+            setActiveTab('operasional');
+          }}
         />
       )}
     </div>

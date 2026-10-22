@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Download,
   Building,
+  X,
 } from 'lucide-react';
 import { InvoiceModal } from './InvoiceModal';
 

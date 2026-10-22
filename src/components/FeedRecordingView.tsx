@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { FeedRecord, UserRole } from '../types/quail';
 import { formatRupiah, formatNumber, formatDecimal } from '../utils/calculations';
-import { Plus, Search, Download, Trash2, Wheat, Calculator } from 'lucide-react';
+import { Plus, Search, Download, Trash2, Wheat, Calculator, Edit2 } from 'lucide-react';
 
 interface FeedRecordingViewProps {
   records: FeedRecord[];
   currentRole: UserRole;
   onOpenModal: (type: 'feed') => void;
   onDeleteRecord: (id: string) => void;
+  onEditRecord: (record: FeedRecord) => void;
   activeLayerPopulation: number;
   activeGrowerPopulation: number;
 }
@@ -17,6 +18,7 @@ export const FeedRecordingView: React.FC<FeedRecordingViewProps> = ({
   currentRole,
   onOpenModal,
   onDeleteRecord,
+  onEditRecord,
   activeLayerPopulation,
   activeGrowerPopulation,
 }) => {
@@ -24,9 +26,9 @@ export const FeedRecordingView: React.FC<FeedRecordingViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [feedCategoryFilter, setFeedCategoryFilter] = useState<'Semua' | 'Pakan Petelur (Layer)' | 'Pakan Pembesaran (Starter/Grower)'>('Semua');
 
-  // Simulator state
-  const [simFeedKg, setSimFeedKg] = useState<number>(115);
-  const [simEggKg, setSimEggKg] = useState<number>(45);
+  // Simulator state (supports > 5,000 kg feed and > 5,000 kg eggs as requested)
+  const [simFeedKg, setSimFeedKg] = useState<number>(5250);
+  const [simEggKg, setSimEggKg] = useState<number>(2350);
 
   const filteredRecords = records.filter((r) => {
     const matchesSearch =
@@ -203,13 +205,13 @@ export const FeedRecordingView: React.FC<FeedRecordingViewProps> = ({
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
             <label className="block text-slate-300 font-medium mb-1">
-              Konsumsi Pakan Layer Harian: <b className="text-white tabular-nums">{simFeedKg} kg</b>
+              Konsumsi Pakan Harian (&gt; 5.000 Kg): <b className="text-white tabular-nums">{formatNumber(simFeedKg)} kg</b>
             </label>
             <input
               type="range"
-              min={90}
-              max={150}
-              step={1}
+              min={100}
+              max={12000}
+              step={50}
               value={simFeedKg}
               onChange={(e) => setSimFeedKg(Number(e.target.value))}
               className="w-full accent-emerald-500 cursor-pointer"
@@ -218,13 +220,13 @@ export const FeedRecordingView: React.FC<FeedRecordingViewProps> = ({
 
           <div>
             <label className="block text-slate-300 font-medium mb-1">
-              Hasil Panen Telur: <b className="text-white tabular-nums">{simEggKg} kg</b>
+              Hasil Panen Telur (&gt; 5.000 Kg): <b className="text-white tabular-nums">{formatNumber(simEggKg)} kg</b>
             </label>
             <input
               type="range"
-              min={30}
-              max={65}
-              step={1}
+              min={50}
+              max={10000}
+              step={50}
               value={simEggKg}
               onChange={(e) => setSimEggKg(Number(e.target.value))}
               className="w-full accent-amber-500 cursor-pointer"
@@ -318,13 +320,22 @@ export const FeedRecordingView: React.FC<FeedRecordingViewProps> = ({
                     </td>
                     <td className="py-3 px-4 text-slate-600">{r.targetFlock}</td>
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => onDeleteRecord(r.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
-                        title="Hapus Catatan"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onEditRecord(r)}
+                          className="p-1 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition"
+                          title="Edit Catatan"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteRecord(r.id)}
+                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
+                          title="Hapus Catatan"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

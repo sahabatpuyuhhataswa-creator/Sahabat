@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { ExpenseRecord, UserRole } from '../types/quail';
 import { formatRupiah } from '../utils/calculations';
-import { Plus, Search, Trash2, Receipt, ShieldAlert } from 'lucide-react';
+import { Plus, Search, Trash2, Receipt, ShieldAlert, Edit2 } from 'lucide-react';
 
 interface ExpensesViewProps {
   records: ExpenseRecord[];
   currentRole: UserRole;
   onOpenModal: (type: 'expense') => void;
   onDeleteRecord: (id: string) => void;
+  onEditRecord: (record: ExpenseRecord) => void;
   onSwitchToOwner: () => void;
 }
 
@@ -16,6 +17,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   currentRole,
   onOpenModal,
   onDeleteRecord,
+  onEditRecord,
   onSwitchToOwner,
 }) => {
   const isOwner = currentRole === 'owner';
@@ -183,13 +185,22 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                       {formatRupiah(r.amount)}
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => onDeleteRecord(r.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
-                        title="Hapus Biaya"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onEditRecord(r)}
+                          className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition"
+                          title="Edit Biaya"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteRecord(r.id)}
+                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
+                          title="Hapus Biaya"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
