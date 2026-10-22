@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { PopulationRecord, UserRole } from '../types/quail';
 import { formatRupiah, formatNumber } from '../utils/calculations';
-import { Plus, Search, Download, Trash2, Activity, ArrowRightLeft, Bird, ShieldCheck } from 'lucide-react';
+import { Plus, Search, Download, Trash2, Activity, ArrowRightLeft, Bird, ShieldCheck, Edit3, Settings2, Pencil } from 'lucide-react';
 
 interface PopulationRecordingViewProps {
   records: PopulationRecord[];
   currentRole: UserRole;
   onOpenModal: (type: 'population') => void;
   onDeleteRecord: (id: string) => void;
+  onOpenEditActivePopulation: () => void;
+  onEditRecord?: (record: PopulationRecord) => void;
 }
 
 export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = ({
@@ -15,6 +17,8 @@ export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = (
   currentRole,
   onOpenModal,
   onDeleteRecord,
+  onOpenEditActivePopulation,
+  onEditRecord,
 }) => {
   const isOwner = currentRole === 'owner';
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,11 +104,19 @@ export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = (
             Populasi Petelur vs Pembesaran (Grower)
           </h1>
           <p className="mt-1 text-xs text-slate-500 leading-relaxed max-w-2xl">
-            Pemisahan sensus populasi awal &amp; aktif antara <b>Kandang Petelur Produktif</b> dan <b>Kandang Pembesaran (Brooding/Grower)</b>, mutasi pullet siap telur, serta rekap kematian.
+            Pemisahan sensus populasi awal &amp; aktif antara <b>Kandang Petelur Produktif</b> dan <b>Kandang Pembesaran (Brooding/Grower)</b>, mutasi pullet siap telur, serta rekap kematian. Anda dapat mengedit jumlah populasi kapan saja sesuai kondisi riil peternakan Anda.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={onOpenEditActivePopulation}
+            className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition"
+            title="Ubah langsung jumlah populasi burung puyuh di peternakan Anda"
+          >
+            <Edit3 className="w-4 h-4 text-rose-400" />
+            <span>✏️ Atur / Edit Populasi</span>
+          </button>
           <button
             onClick={() => onOpenModal('population')}
             className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-xs transition"
@@ -125,10 +137,19 @@ export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = (
       {/* KPI Cards: Separated by Layer vs Grower */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Populasi Petelur (Layer) */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs relative group">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold">
             <span>Populasi Petelur (Layer)</span>
-            <span className="px-1.5 py-0.5 rounded-sm bg-amber-100 text-amber-800 text-[10px]">Produktif</span>
+            <div className="flex items-center gap-1">
+              <span className="px-1.5 py-0.5 rounded-sm bg-amber-100 text-amber-800 text-[10px]">Produktif</span>
+              <button
+                onClick={onOpenEditActivePopulation}
+                title="Edit Populasi Puyuh"
+                className="text-slate-400 hover:text-rose-600 transition p-0.5"
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           <div className="text-xl md:text-2xl font-bold text-slate-900 mt-1 tabular-nums">
             {formatNumber(latestLayer.activeCount)} <span className="text-xs font-normal text-slate-500">ekor</span>
@@ -139,10 +160,19 @@ export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = (
         </div>
 
         {/* 2. Populasi Pembesaran (Grower/Starter) */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs relative group">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold">
             <span>Populasi Pembesaran</span>
-            <span className="px-1.5 py-0.5 rounded-sm bg-blue-100 text-blue-800 text-[10px]">Grower/DOQ</span>
+            <div className="flex items-center gap-1">
+              <span className="px-1.5 py-0.5 rounded-sm bg-blue-100 text-blue-800 text-[10px]">Grower/DOQ</span>
+              <button
+                onClick={onOpenEditActivePopulation}
+                title="Edit Populasi Puyuh"
+                className="text-slate-400 hover:text-blue-600 transition p-0.5"
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           <div className="text-xl md:text-2xl font-bold text-blue-700 mt-1 tabular-nums">
             {formatNumber(latestGrower.activeCount)} <span className="text-xs font-normal text-slate-500">ekor</span>
@@ -154,7 +184,16 @@ export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = (
 
         {/* 3. Total Populasi Farm */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500">Total Seluruh Burung Farm</span>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500">Total Seluruh Burung Farm</span>
+            <button
+              onClick={onOpenEditActivePopulation}
+              className="text-[10px] font-semibold text-rose-600 hover:underline flex items-center gap-0.5"
+            >
+              <Pencil className="w-2.5 h-2.5" />
+              <span>Edit</span>
+            </button>
+          </div>
           <div className="text-xl md:text-2xl font-bold text-slate-900 mt-1 tabular-nums">
             {formatNumber(latestLayer.activeCount + latestGrower.activeCount)} <span className="text-xs font-normal text-slate-500">ekor</span>
           </div>
@@ -272,13 +311,24 @@ export const PopulationRecordingView: React.FC<PopulationRecordingViewProps> = (
                       {r.mortalityReason || r.notes || 'Kondisi sehat & aktif'}
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => onDeleteRecord(r.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
-                        title="Hapus Data"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        {onEditRecord && (
+                          <button
+                            onClick={() => onEditRecord(r)}
+                            className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition"
+                            title="Edit Catatan Sensus Ini"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onDeleteRecord(r.id)}
+                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
+                          title="Hapus Data"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

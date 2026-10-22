@@ -12,11 +12,14 @@ import {
   X,
   Bird,
   UserCheck,
+  ShoppingBag,
 } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 export type TabKey =
   | 'dashboard'
   | 'telur'
+  | 'penjualan-telur'
   | 'bibit'
   | 'pakan'
   | 'populasi'
@@ -110,7 +113,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
             }`}
           >
             <Egg className={`w-4 h-4 ${activeTab === 'telur' ? 'text-amber-400' : 'text-slate-400'}`} />
-            <span>Pencatatan Telur</span>
+            <span>Panen Telur (Harian)</span>
+          </button>
+
+          <button
+            onClick={() => handleSelectTab('penjualan-telur', false)}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition text-left ${
+              activeTab === 'penjualan-telur'
+                ? 'bg-slate-800 text-white font-semibold border border-slate-700/60 shadow-xs'
+                : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
+            }`}
+          >
+            <ShoppingBag className={`w-4 h-4 ${activeTab === 'penjualan-telur' ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <div className="flex-1 flex items-center justify-between">
+              <span>Penjualan Telur</span>
+              <span className="text-[10px] bg-emerald-900/60 text-emerald-300 px-1.5 py-0.2 rounded font-semibold border border-emerald-700/40">
+                Khusus
+              </span>
+            </div>
           </button>
 
           <button
@@ -222,6 +242,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </button>
         </nav>
+
+        {/* PWA / APK Mobile Install Button */}
+        <div className="p-3 border-t border-slate-800">
+          <PWAInstallButton variant="sidebar" />
+        </div>
 
         {/* User Role Indicator Card at Bottom */}
         <div className="p-3 border-t border-slate-800 bg-slate-950/50">

@@ -1,5 +1,6 @@
 import {
   EggRecord,
+  EggSaleRecord,
   FeedRecord,
   PopulationRecord,
   ExpenseRecord,
@@ -20,24 +21,156 @@ export function getInitialEggRecords(): EggRecord[] {
     const brokenPcs = 18 + Math.floor(Math.random() * 12);
     const goodPcs = basePcs - brokenPcs;
     const totalKg = Number(((basePcs * 10.9) / 1000).toFixed(2));
-    const pricePerKg = 33000;
-    const revenue = Math.round(totalKg * pricePerKg);
 
     records.push({
-      id: `egg-${dateStr}`,
+      id: `egg-harvest-${dateStr}`,
       date: dateStr,
       timeOfDay: 'Total Hari',
       kandang: 'Kandang Petelur (A & B)',
       goodEggsPcs: goodPcs,
       brokenEggsPcs: brokenPcs,
       totalWeightKg: totalKg,
-      sellingPricePerKg: pricePerKg,
-      revenue: revenue,
-      buyerName: i % 2 === 0 ? 'Pengepul Pak Slamet (Pasar Induk)' : 'Agen Telur Berkah Ibu Ani',
-      paymentStatus: 'Lunas',
-      notes: i === 0 ? 'Kualitas kerabang sangat bagus, warna bintik coklat pekat' : undefined,
+      notes: i === 0 ? 'Kualitas kerabang sangat bagus, warna bintik coklat pekat normal' : undefined,
     });
   }
+
+  return records;
+}
+
+export function getInitialEggSaleRecords(): EggSaleRecord[] {
+  const records: EggSaleRecord[] = [];
+  const today = new Date();
+
+  const salesData = [
+    {
+      daysAgo: 12,
+      buyerName: 'Pengepul Pak Slamet (Pasar Induk)',
+      customerType: 'Pengepul Besar' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 42.0,
+      quantityPcs: 3850,
+      trayCount: 42,
+      pricePerKg: 33000,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'Transfer Bank' as const,
+      notes: 'Rutin pengambilan grosir 2 hari sekali',
+    },
+    {
+      daysAgo: 10,
+      buyerName: 'Agen Telur Berkah Ibu Ani',
+      customerType: 'Agen Telur' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 44.5,
+      quantityPcs: 4080,
+      trayCount: 45,
+      pricePerKg: 33500,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'Tunai' as const,
+      notes: 'Pengambilan langsung di kandang Hataswa',
+    },
+    {
+      daysAgo: 9,
+      buyerName: 'Warung Makan Bu Siti (Pecel Lele & Soto)',
+      customerType: 'Warung/Retail' as const,
+      eggGrade: 'Telur Retak / Pecah Kulit (Diskon)' as const,
+      quantityKg: 5.0,
+      quantityPcs: 450,
+      trayCount: 5,
+      pricePerKg: 22000,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'Tunai' as const,
+      notes: 'Telur retak segar langsung untuk rebusan soto',
+    },
+    {
+      daysAgo: 8,
+      buyerName: 'Pengepul Pak Slamet (Pasar Induk)',
+      customerType: 'Pengepul Besar' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 43.0,
+      quantityPcs: 3950,
+      trayCount: 43,
+      pricePerKg: 33000,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'Transfer Bank' as const,
+      notes: 'Pembayaran transfer BCA farm',
+    },
+    {
+      daysAgo: 6,
+      buyerName: 'Koperasi Karyawan Sejahtera',
+      customerType: 'Agen Telur' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 40.0,
+      quantityPcs: 3680,
+      trayCount: 40,
+      pricePerKg: 34000,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'Transfer Bank' as const,
+      notes: 'Pesanan mika kemasan 1 kg',
+    },
+    {
+      daysAgo: 4,
+      buyerName: 'Agen Telur Berkah Ibu Ani',
+      customerType: 'Agen Telur' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 45.0,
+      quantityPcs: 4120,
+      trayCount: 45,
+      pricePerKg: 33500,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'Tunai' as const,
+      notes: 'Diambil sore hari setelah panen',
+    },
+    {
+      daysAgo: 2,
+      buyerName: 'Pengepul Pak Slamet (Pasar Induk)',
+      customerType: 'Pengepul Besar' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 44.0,
+      quantityPcs: 4040,
+      trayCount: 44,
+      pricePerKg: 33000,
+      paymentStatus: 'Piutang' as const,
+      paymentMethod: 'Transfer Bank' as const,
+      dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+      notes: 'Tempo 3 hari sesuai kesepakatan mitra dagang',
+    },
+    {
+      daysAgo: 0,
+      buyerName: 'Warung Bu Siti & Pelanggan Sekitar',
+      customerType: 'Warung/Retail' as const,
+      eggGrade: 'Telur Utuh / Grade A (Konsumsi)' as const,
+      quantityKg: 10.0,
+      quantityPcs: 920,
+      trayCount: 10,
+      pricePerKg: 35000,
+      paymentStatus: 'Lunas' as const,
+      paymentMethod: 'QRIS' as const,
+      notes: 'Penjualan eceran retail kandang',
+    },
+  ];
+
+  salesData.forEach((s, idx) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - s.daysAgo);
+    const dateStr = d.toISOString().split('T')[0];
+
+    records.push({
+      id: `egg-sale-${idx + 1}-${dateStr}`,
+      date: dateStr,
+      buyerName: s.buyerName,
+      customerType: s.customerType,
+      eggGrade: s.eggGrade,
+      quantityKg: s.quantityKg,
+      quantityPcs: s.quantityPcs,
+      trayCount: s.trayCount,
+      pricePerKg: s.pricePerKg,
+      totalRevenue: Math.round(s.quantityKg * s.pricePerKg),
+      paymentStatus: s.paymentStatus,
+      paymentMethod: s.paymentMethod,
+      dueDate: s.dueDate,
+      notes: s.notes,
+    });
+  });
 
   return records;
 }
@@ -291,7 +424,7 @@ export function getInitialAttendanceRecords(): StaffAttendanceRecord[] {
       locationKandang: 'Kandang Petelur A & B',
       attendanceType: 'Hadir Masuk',
       method: 'Foto Kamera Kandang',
-      photoUrl: '/src/assets/images/farm_worker_attendance_1792558034797.jpg',
+      photoUrl: '/images/farm_worker_attendance_1792558034797.jpg',
       temperatureC: 27.5,
       tasksDone: 'Pemberian pakan pagi 115kg, kontrol nipple minum, penimbangan panen telur pagi',
       conditionNotes: 'Kandang bersih, sirkulasi udara baik, kawanan aktif',

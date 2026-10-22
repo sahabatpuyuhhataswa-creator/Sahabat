@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import {
   EggRecord,
+  EggSaleRecord,
   FeedRecord,
   PopulationRecord,
   ExpenseRecord,
   QuailSeedSaleRecord,
 } from '../types/quail';
-import { X, Egg, Wheat, Activity, Receipt, Bird } from 'lucide-react';
+import { X, Egg, Wheat, Activity, Receipt, Bird, ShoppingBag } from 'lucide-react';
 
 interface ModalFormProps {
-  type: 'egg' | 'feed' | 'population' | 'expense' | 'seedSale' | null;
+  type: 'egg' | 'eggSale' | 'feed' | 'population' | 'expense' | 'seedSale' | null;
   onClose: () => void;
   onSaveEgg: (record: Omit<EggRecord, 'id' | 'revenue'>) => void;
+  onSaveEggSale?: (record: Omit<EggSaleRecord, 'id' | 'totalRevenue'>) => void;
   onSaveFeed: (record: Omit<FeedRecord, 'id' | 'totalCost'>) => void;
   onSavePopulation: (record: Omit<PopulationRecord, 'id'>) => void;
   onSaveExpense: (record: Omit<ExpenseRecord, 'id'>) => void;
@@ -24,6 +26,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
   type,
   onClose,
   onSaveEgg,
+  onSaveEggSale,
   onSaveFeed,
   onSavePopulation,
   onSaveExpense,
@@ -33,17 +36,38 @@ export const ModalForm: React.FC<ModalFormProps> = ({
 }) => {
   const todayStr = new Date().toISOString().split('T')[0];
 
-  // EGG FORM STATE
+  // EGG HARVEST FORM STATE (Murni Panen Harian)
   const [eggDate, setEggDate] = useState(todayStr);
   const [eggTime, setEggTime] = useState<'Pagi' | 'Sore' | 'Total Hari'>('Total Hari');
   const [eggKandang, setEggKandang] = useState('Kandang Petelur (A & B)');
   const [goodEggs, setGoodEggs] = useState(4100);
   const [brokenEggs, setBrokenEggs] = useState(20);
   const [weightKg, setWeightKg] = useState(45.5);
-  const [eggPrice, setEggPrice] = useState(33000);
-  const [buyerName, setBuyerName] = useState('Pengepul Pasar Induk');
-  const [paymentStatus, setPaymentStatus] = useState<'Lunas' | 'Piutang' | 'Stok Belum Terjual'>('Lunas');
   const [eggNotes, setEggNotes] = useState('');
+
+  // EGG SALE FORM STATE (Khusus Transaksi Penjualan)
+  const [saleDate, setSaleDate] = useState(todayStr);
+  const [saleBuyerName, setSaleBuyerName] = useState('Pengepul Pak Slamet (Pasar Induk)');
+  const [saleCustomerType, setSaleCustomerType] = useState<
+    'Pengepul Besar' | 'Agen Telur' | 'Warung/Retail' | 'Konsumen Langsung'
+  >('Pengepul Besar');
+  const [saleEggGrade, setSaleEggGrade] = useState<
+    'Telur Utuh / Grade A (Konsumsi)' | 'Telur Retak / Pecah Kulit (Diskon)' | 'Telur Asin / Olahan' | 'Campur / Partai Besar'
+  >('Telur Utuh / Grade A (Konsumsi)');
+  const [saleQuantityKg, setSaleQuantityKg] = useState(45.0);
+  const [saleQuantityPcs, setSaleQuantityPcs] = useState(4100);
+  const [saleTrayCount, setSaleTrayCount] = useState(45);
+  const [salePricePerKg, setSalePricePerKg] = useState(33000);
+  const [salePaymentStatus, setSalePaymentStatus] = useState<'Lunas' | 'Piutang' | 'DP / Uang Muka'>('Lunas');
+  const [salePaymentMethod, setSalePaymentMethod] = useState<'Tunai' | 'Transfer Bank' | 'QRIS'>('Transfer Bank');
+  const [saleDueDate, setSaleDueDate] = useState('');
+  const [saleNotes, setSaleNotes] = useState('');
+
+  const handleSaleKgChange = (val: number) => {
+    setSaleQuantityKg(val);
+    setSaleQuantityPcs(Math.round(val * 90));
+    setSaleTrayCount(Math.round(val));
+  };
 
   // FEED FORM STATE
   const [feedDate, setFeedDate] = useState(todayStr);
@@ -128,11 +152,25 @@ export const ModalForm: React.FC<ModalFormProps> = ({
         goodEggsPcs: Number(goodEggs),
         brokenEggsPcs: Number(brokenEggs),
         totalWeightKg: Number(weightKg),
-        sellingPricePerKg: Number(eggPrice),
-        buyerName,
-        paymentStatus,
         notes: eggNotes || undefined,
       });
+    } else if (type === 'eggSale') {
+      if (onSaveEggSale) {
+        onSaveEggSale({
+          date: saleDate,
+          buyerName: saleBuyerName,
+          customerType: saleCustomerType,
+          eggGrade: saleEggGrade,
+          quantityKg: Number(saleQuantityKg),
+          quantityPcs: Number(saleQuantityPcs),
+          trayCount: Number(saleTrayCount),
+          pricePerKg: Number(salePricePerKg),
+          paymentStatus: salePaymentStatus,
+          paymentMethod: salePaymentMethod,
+          dueDate: salePaymentStatus === 'Piutang' && saleDueDate ? saleDueDate : undefined,
+          notes: saleNotes || undefined,
+        });
+      }
     } else if (type === 'feed') {
       onSaveFeed({
         date: feedDate,
@@ -202,7 +240,9 @@ export const ModalForm: React.FC<ModalFormProps> = ({
   const getTitle = () => {
     switch (type) {
       case 'egg':
-        return { label: 'Catat Hasil Panen Telur', icon: <Egg className="w-5 h-5 text-amber-500" /> };
+        return { label: 'Catat Hasil Panen Harian Telur', icon: <Egg className="w-5 h-5 text-amber-500" /> };
+      case 'eggSale':
+        return { label: 'Catat Penjualan Telur Puyuh', icon: <ShoppingBag className="w-5 h-5 text-emerald-500" /> };
       case 'feed':
         return { label: 'Catat Pakan Masuk / Terpakai (Layer vs Pembesaran)', icon: <Wheat className="w-5 h-5 text-emerald-500" /> };
       case 'population':
@@ -218,6 +258,12 @@ export const ModalForm: React.FC<ModalFormProps> = ({
 
   const info = getTitle();
   if (!info) return null;
+
+  const eggHarvestTotalPcs = Number(goodEggs) + Number(brokenEggs);
+  const eggHarvestAvgWeight = eggHarvestTotalPcs > 0 ? ((Number(weightKg) * 1000) / eggHarvestTotalPcs).toFixed(1) : '0';
+  const eggHarvestBrokenPct = eggHarvestTotalPcs > 0 ? ((Number(brokenEggs) / eggHarvestTotalPcs) * 100).toFixed(1) : '0';
+
+  const saleTotalOmzet = Math.round(Number(saleQuantityKg) * Number(salePricePerKg));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
@@ -239,9 +285,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
-          {/* EGG FORM */}
+          {/* EGG HARVEST FORM (Murni Panen Harian) */}
           {type === 'egg' && (
             <>
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 leading-relaxed">
+                Formulir ini murni untuk mencatat produksi panen telur harian dari kandang. Transaksi penjualan ke pembeli/agen dicatat secara terpisah di menu Penjualan Telur.
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-medium mb-1">Tanggal Panen</label>
@@ -250,7 +300,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                     value={eggDate}
                     onChange={(e) => setEggDate(e.target.value)}
                     required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium"
                   />
                 </div>
                 <div>
@@ -258,7 +308,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                   <select
                     value={eggTime}
                     onChange={(e: any) => setEggTime(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
                   >
                     <option value="Total Hari">Total Hari</option>
                     <option value="Pagi">Pagi Hari (06.30 - 08.00)</option>
@@ -272,7 +322,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                 <select
                   value={eggKandang}
                   onChange={(e) => setEggKandang(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium"
                 >
                   <option value="Kandang Petelur (A & B)">Kandang Petelur (A &amp; B)</option>
                   <option value="Kandang A (Barat)">Kandang A (Barat)</option>
@@ -280,33 +330,30 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Telur Utuh (Butir)</label>
+                  <label className="block text-slate-700 font-semibold mb-1 text-[11px]">Butir Utuh (Grade A)</label>
                   <input
                     type="number"
                     value={goodEggs}
                     onChange={(e) => setGoodEggs(Number(e.target.value))}
                     required
                     min={0}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
+                    className="w-full bg-white border border-slate-300 rounded-lg p-2 font-bold text-slate-900"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Telur Retak/Pecah (Butir)</label>
+                  <label className="block text-rose-600 font-semibold mb-1 text-[11px]">Retak / Rusak</label>
                   <input
                     type="number"
                     value={brokenEggs}
                     onChange={(e) => setBrokenEggs(Number(e.target.value))}
                     min={0}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-rose-600"
+                    className="w-full bg-white border border-slate-300 rounded-lg p-2 text-rose-600 font-bold"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Total Bobot (Kg)</label>
+                  <label className="block text-amber-700 font-semibold mb-1 text-[11px]">Total Bobot (Kg)</label>
                   <input
                     type="number"
                     step="0.1"
@@ -314,60 +361,201 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                     onChange={(e) => setWeightKg(Number(e.target.value))}
                     required
                     min={0.1}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold"
+                    className="w-full bg-white border border-slate-300 rounded-lg p-2 font-extrabold text-slate-900"
                   />
-                  <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    Rata-rata: {((weightKg * 1000) / (goodEggs + brokenEggs || 1)).toFixed(1)} gram/telur
-                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 p-2.5 bg-slate-100 rounded-xl text-[11px] text-slate-600">
+                <div>
+                  <span>Rata-rata Bobot: </span>
+                  <span className="font-bold text-slate-800">{eggHarvestAvgWeight} g/butir</span>
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Harga Jual per Kg (Rp)</label>
-                  <input
-                    type="number"
-                    step="500"
-                    value={eggPrice}
-                    onChange={(e) => setEggPrice(Number(e.target.value))}
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold text-emerald-700"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    Omzet: Rp {(weightKg * eggPrice).toLocaleString('id-ID')}
+                  <span>Tingkat Kerusakan: </span>
+                  <span className={`font-bold ${Number(eggHarvestBrokenPct) <= 1.5 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {eggHarvestBrokenPct}% {Number(eggHarvestBrokenPct) <= 1.5 ? '(Optimal)' : '(Tinggi)'}
                   </span>
                 </div>
               </div>
 
+              <div>
+                <label className="block text-slate-700 font-medium mb-1">Catatan Tambahan Panen</label>
+                <input
+                  type="text"
+                  value={eggNotes}
+                  onChange={(e) => setEggNotes(e.target.value)}
+                  placeholder="Kondisi kerabang tebal, warna bintik pekat, cuaca normal..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
+                />
+              </div>
+            </>
+          )}
+
+          {/* EGG SALE FORM (Khusus Transaksi Penjualan Telur) */}
+          {type === 'eggSale' && (
+            <>
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-900 leading-relaxed">
+                Pencatatan nota penjualan telur puyuh ke pelanggan. Transaksi ini akan otomatis menambah omzet farm dan mengurangi persediaan telur di gudang.
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Pembeli / Agen Pasar</label>
+                  <label className="block text-slate-700 font-medium mb-1">Tanggal Penjualan</label>
                   <input
-                    type="text"
-                    value={buyerName}
-                    onChange={(e) => setBuyerName(e.target.value)}
-                    placeholder="Contoh: Agen Telur Pak Slamet"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
+                    type="date"
+                    value={saleDate}
+                    onChange={(e) => setSaleDate(e.target.value)}
+                    required
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Status Pembayaran</label>
+                  <label className="block text-slate-700 font-medium mb-1">Tipe Pelanggan</label>
                   <select
-                    value={paymentStatus}
-                    onChange={(e: any) => setPaymentStatus(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
+                    value={saleCustomerType}
+                    onChange={(e: any) => setSaleCustomerType(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
                   >
-                    <option value="Lunas">Lunas (Cash / Transfer)</option>
-                    <option value="Piutang">Piutang (Tempo 3 Hari)</option>
-                    <option value="Stok Belum Terjual">Stok Belum Terjual</option>
+                    <option value="Pengepul Besar">Pengepul Besar</option>
+                    <option value="Agen Telur">Agen Telur</option>
+                    <option value="Warung/Retail">Warung Makan / Retail (Soto &amp; Pecel)</option>
+                    <option value="Konsumen Langsung">Konsumen Langsung</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Catatan Tambahan</label>
+                <label className="block text-slate-700 font-medium mb-1">Nama Pembeli / Agen</label>
                 <input
                   type="text"
-                  value={eggNotes}
-                  onChange={(e) => setEggNotes(e.target.value)}
-                  placeholder="Kondisi kerabang, warna bintik, dsb..."
+                  value={saleBuyerName}
+                  onChange={(e) => setSaleBuyerName(e.target.value)}
+                  required
+                  placeholder="Contoh: Pengepul Pak Slamet (Pasar Induk)"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-medium mb-1">Kategori / Grade Telur</label>
+                <select
+                  value={saleEggGrade}
+                  onChange={(e: any) => setSaleEggGrade(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
+                >
+                  <option value="Telur Utuh / Grade A (Konsumsi)">Telur Utuh / Grade A (Konsumsi)</option>
+                  <option value="Telur Retak / Pecah Kulit (Diskon)">Telur Retak / Pecah Kulit (Diskon Kuliner)</option>
+                  <option value="Telur Asin / Olahan">Telur Asin / Olahan</option>
+                  <option value="Campur / Partai Besar">Campur / Partai Besar</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1 text-[11px]">Volume (Kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value={saleQuantityKg}
+                    onChange={(e) => handleSaleKgChange(parseFloat(e.target.value) || 0)}
+                    required
+                    className="w-full bg-white border border-slate-300 rounded-lg p-2 font-extrabold text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-600 font-semibold mb-1 text-[11px]">Estimasi Butir</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={saleQuantityPcs}
+                    onChange={(e) => setSaleQuantityPcs(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold text-slate-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-600 font-semibold mb-1 text-[11px]">Jumlah Tray</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={saleTrayCount}
+                    onChange={(e) => setSaleTrayCount(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold text-slate-700"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-medium mb-1">Harga Jual per Kg (Rp)</label>
+                  <input
+                    type="number"
+                    step="500"
+                    min="1000"
+                    value={salePricePerKg}
+                    onChange={(e) => setSalePricePerKg(Number(e.target.value))}
+                    required
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-medium mb-1">Total Nilai Penjualan</label>
+                  <div className="w-full bg-emerald-50 border border-emerald-200 rounded-lg p-2 font-extrabold text-emerald-700 tabular-nums">
+                    Rp {saleTotalOmzet.toLocaleString('id-ID')}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-medium mb-1">Metode Pembayaran</label>
+                  <select
+                    value={salePaymentMethod}
+                    onChange={(e: any) => setSalePaymentMethod(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium"
+                  >
+                    <option value="Transfer Bank">Transfer Bank (BCA / BRI / Mandiri)</option>
+                    <option value="Tunai">Tunai / Cash</option>
+                    <option value="QRIS">QRIS Hataswa</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-medium mb-1">Status Pembayaran</label>
+                  <select
+                    value={salePaymentStatus}
+                    onChange={(e: any) => setSalePaymentStatus(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold"
+                  >
+                    <option value="Lunas">Lunas (Selesai)</option>
+                    <option value="Piutang">Piutang (Tempo Pembayaran)</option>
+                    <option value="DP / Uang Muka">DP / Uang Muka</option>
+                  </select>
+                </div>
+              </div>
+
+              {salePaymentStatus === 'Piutang' && (
+                <div>
+                  <label className="block text-amber-800 font-semibold mb-1">
+                    Tanggal Jatuh Tempo Piutang
+                  </label>
+                  <input
+                    type="date"
+                    value={saleDueDate}
+                    onChange={(e) => setSaleDueDate(e.target.value)}
+                    required
+                    className="w-full bg-amber-50 border border-amber-300 rounded-lg p-2 font-semibold text-amber-950"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-slate-700 font-medium mb-1">Catatan Penjualan / Pengiriman</label>
+                <input
+                  type="text"
+                  value={saleNotes}
+                  onChange={(e) => setSaleNotes(e.target.value)}
+                  placeholder="Keterangan pengiriman, nomor kendaraan, atau rincian kemasan..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2"
                 />
               </div>

@@ -1,5 +1,6 @@
 import {
   EggRecord,
+  EggSaleRecord,
   FeedRecord,
   PopulationRecord,
   ExpenseRecord,
@@ -27,7 +28,8 @@ export function calculateFarmMetrics(
   feeds: FeedRecord[],
   populations: PopulationRecord[],
   expenses: ExpenseRecord[],
-  seedSales: QuailSeedSaleRecord[] = []
+  seedSales: QuailSeedSaleRecord[] = [],
+  eggSales: EggSaleRecord[] = []
 ): FarmMetrics {
   // Separate populations by flockType
   const layerPops = populations
@@ -84,8 +86,15 @@ export function calculateFarmMetrics(
   const mortality30Days = mortality30DaysLayer + mortality30DaysGrower;
   const mortalityRate = activePopulation > 0 ? Number(((mortality30Days / activePopulation) * 100).toFixed(2)) : 0;
 
-  // Revenues
-  const monthlyEggRevenue = eggs.reduce((sum, e) => sum + (e.revenue || 0), 0);
+  // Harvest & Sales Volume
+  const totalEggHarvestKg = Number(eggs.reduce((sum, e) => sum + (e.totalWeightKg || 0), 0).toFixed(1));
+  const totalEggSalesKg = Number(eggSales.reduce((sum, s) => sum + (s.quantityKg || 0), 0).toFixed(1));
+  const eggStockKg = Math.max(0, Number((totalEggHarvestKg - totalEggSalesKg).toFixed(1)));
+
+  // Revenues - separate egg sales transactions from harvest records
+  const monthlyEggRevenue = eggSales.length > 0
+    ? eggSales.reduce((sum, s) => sum + (s.totalRevenue || 0), 0)
+    : eggs.reduce((sum, e) => sum + (e.revenue || 0), 0);
   const monthlySeedRevenue = seedSales.reduce((sum, s) => sum + (s.totalRevenue || 0), 0);
   const monthlyCullRevenue = populations.reduce((sum, p) => sum + (p.cullRevenue || 0), 0);
   const monthlyRevenue = monthlyEggRevenue + monthlySeedRevenue + monthlyCullRevenue;
@@ -102,7 +111,7 @@ export function calculateFarmMetrics(
   const profitMargin = monthlyRevenue > 0 ? Number(((monthlyNetProfit / monthlyRevenue) * 100).toFixed(1)) : 0;
 
   // BEP Egg per Kg (attributed against layer feed + operational share)
-  const totalEggKg = eggs.reduce((sum, e) => sum + (e.totalWeightKg || 0), 0);
+  const totalEggKg = totalEggHarvestKg;
   const bepPerKg = totalEggKg > 0 ? Math.round((monthlyLayerFeedCost + monthlyOpCost) / totalEggKg) : 0;
 
   return {
@@ -133,5 +142,8 @@ export function calculateFarmMetrics(
     feedStockSacksLayer: 18,
     feedStockSacksGrower: 8,
     feedStockSacks: 26,
+    totalEggHarvestKg,
+    totalEggSalesKg,
+    eggStockKg,
   };
 }

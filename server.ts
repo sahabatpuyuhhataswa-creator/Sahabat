@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
@@ -11,8 +12,45 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
+const PERSISTENT_DATA_PATH = path.resolve(__dirname, 'farm_data_store.json');
 
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
+
+// Persistent Farm Data Endpoints
+app.get('/api/farm-data', (_req, res) => {
+  try {
+    if (fs.existsSync(PERSISTENT_DATA_PATH)) {
+      const stats = fs.statSync(PERSISTENT_DATA_PATH);
+      const content = fs.readFileSync(PERSISTENT_DATA_PATH, 'utf-8');
+      const parsed = JSON.parse(content);
+      // Verify parsed data has actual records
+      if (parsed && (parsed.eggRecords || parsed.populationRecords)) {
+        return res.json({ 
+          success: true, 
+          data: parsed,
+          lastModified: stats.mtime.toISOString(),
+        });
+      }
+    }
+    return res.json({ success: true, data: null, lastModified: null });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/farm-data', (req, res) => {
+  try {
+    const payload = req.body;
+    const toSave = {
+      ...payload,
+      _serverSavedAt: new Date().toISOString(),
+    };
+    fs.writeFileSync(PERSISTENT_DATA_PATH, JSON.stringify(toSave, null, 2), 'utf-8');
+    return res.json({ success: true, savedAt: toSave._serverSavedAt });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // Shared Gemini Client
 const geminiApiKey =

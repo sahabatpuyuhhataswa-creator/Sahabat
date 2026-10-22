@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   EggRecord,
+  EggSaleRecord,
   FeedRecord,
   PopulationRecord,
   ExpenseRecord,
@@ -12,6 +13,7 @@ import { Printer, Scale, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 interface ProfitLossViewProps {
   eggRecords: EggRecord[];
+  eggSaleRecords?: EggSaleRecord[];
   feedRecords: FeedRecord[];
   populationRecords: PopulationRecord[];
   expenseRecords: ExpenseRecord[];
@@ -22,6 +24,7 @@ interface ProfitLossViewProps {
 
 export const ProfitLossView: React.FC<ProfitLossViewProps> = ({
   eggRecords,
+  eggSaleRecords = [],
   feedRecords,
   populationRecords,
   expenseRecords,
@@ -51,8 +54,10 @@ export const ProfitLossView: React.FC<ProfitLossViewProps> = ({
     );
   }
 
-  // Revenue Breakdown
-  const eggRevenue = eggRecords.reduce((s, r) => s + r.revenue, 0);
+  // Revenue Breakdown - Use dedicated egg sales transactions if available
+  const eggRevenue = eggSaleRecords.length > 0
+    ? eggSaleRecords.reduce((s, r) => s + r.totalRevenue, 0)
+    : eggRecords.reduce((s, r) => s + (r.revenue || 0), 0);
   const seedRevenue = seedSaleRecords.reduce((s, r) => s + r.totalRevenue, 0);
   const cullRevenue = populationRecords.reduce((s, r) => s + (r.cullRevenue || 0), 0);
   const totalRevenue = eggRevenue + seedRevenue + cullRevenue;
@@ -80,10 +85,13 @@ export const ProfitLossView: React.FC<ProfitLossViewProps> = ({
   const netMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '0';
 
   // BEP Calculation for Eggs
-  const totalEggKg = eggRecords.reduce((s, r) => s + r.totalWeightKg, 0);
+  const totalEggHarvestKg = eggRecords.reduce((s, r) => s + r.totalWeightKg, 0);
+  const totalEggSoldKg = eggSaleRecords.length > 0
+    ? eggSaleRecords.reduce((s, r) => s + r.quantityKg, 0)
+    : totalEggHarvestKg;
   const totalLayerCostCombined = layerFeedCost + totalOpExpenses;
-  const bepPerKg = totalEggKg > 0 ? Math.round(totalLayerCostCombined / totalEggKg) : 0;
-  const avgSellingPrice = totalEggKg > 0 ? Math.round(eggRevenue / totalEggKg) : 0;
+  const bepPerKg = totalEggHarvestKg > 0 ? Math.round(totalLayerCostCombined / totalEggHarvestKg) : 0;
+  const avgSellingPrice = totalEggSoldKg > 0 ? Math.round(eggRevenue / totalEggSoldKg) : 0;
 
   const handlePrint = () => {
     window.print();
@@ -178,7 +186,7 @@ export const ProfitLossView: React.FC<ProfitLossViewProps> = ({
             </div>
             <div className="divide-y divide-slate-100 pl-4 pr-3">
               <div className="flex justify-between py-2">
-                <span className="text-slate-600">Penjualan Telur Puyuh Segar ({formatNumber(totalEggKg, 1)} kg)</span>
+                <span className="text-slate-600">Penjualan Telur Puyuh Segar ({formatNumber(totalEggSoldKg, 1)} kg)</span>
                 <span className="font-semibold tabular-nums">{formatRupiah(eggRevenue)}</span>
               </div>
               <div className="flex justify-between py-2">

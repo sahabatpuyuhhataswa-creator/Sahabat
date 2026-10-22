@@ -43,9 +43,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       {/* Background visual ambience */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <img
-          src="/src/assets/images/quail_farm_banner_1792556184331.jpg"
+          src="/images/quail_farm_banner_1792556184331.jpg"
           alt="Kandang Sahabat Puyuh Hataswa"
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            (e.target as HTMLElement).style.display = 'none';
+          }}
           className="w-full h-full object-cover filter blur-xs"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />

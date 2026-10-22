@@ -21,9 +21,10 @@ interface DashboardViewProps {
   populationRecords: PopulationRecord[];
   expenseRecords: ExpenseRecord[];
   currentRole: UserRole;
-  onOpenModal: (type: 'egg' | 'feed' | 'population' | 'expense' | 'seedSale') => void;
+  onOpenModal: (type: 'egg' | 'eggSale' | 'feed' | 'population' | 'expense' | 'seedSale') => void;
   onOpenAttendanceModal?: () => void;
   onNavigateTab: (tab: any) => void;
+  onOpenEditActivePopulation?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -34,6 +35,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenModal,
   onOpenAttendanceModal,
   onNavigateTab,
+  onOpenEditActivePopulation,
 }) => {
   const isOwner = currentRole === 'owner';
   const [chartMetric, setChartMetric] = useState<'kg' | 'hdp'>('kg');
@@ -74,7 +76,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 Sahabat Puyuh Hataswa
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Monitoring harian produksi telur puyuh, penjualan bibit DOQ, efisiensi ransum pakan (FCR), mortalitas kawanan, dan analisis laba rugi farm modern.
+                Monitoring harian produksi panen telur puyuh, penjualan telur terpisah, bibit DOQ, efisiensi ransum pakan (FCR), mortalitas kawanan, dan analisis laba rugi farm modern.
               </p>
             </div>
           </div>
@@ -85,7 +87,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-xs transition"
             >
               <Plus className="w-4 h-4" />
-              <span>Catat Panen Telur</span>
+              <span>+ Catat Panen Telur</span>
+            </button>
+            <button
+              onClick={() => onOpenModal('eggSale')}
+              className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-xs transition"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Jual Telur</span>
             </button>
             <button
               onClick={() => onOpenModal('seedSale')}
@@ -126,10 +135,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
         {/* 1. Populasi Aktif (Layer vs Pembesaran) */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between relative group">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Total Populasi</span>
-            <Activity className="w-4 h-4 text-slate-400" />
+            {onOpenEditActivePopulation ? (
+              <button
+                onClick={onOpenEditActivePopulation}
+                title="Edit Populasi Puyuh"
+                className="text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded-md transition flex items-center gap-1"
+              >
+                <span>✏️ Edit</span>
+              </button>
+            ) : (
+              <Activity className="w-4 h-4 text-slate-400" />
+            )}
           </div>
           <div className="mt-2">
             <div className="text-xl md:text-2xl font-bold text-slate-900 tabular-nums">
@@ -441,37 +460,86 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <tr>
                 <th className="py-3 px-4">Tanggal</th>
                 <th className="py-3 px-4">Kandang</th>
-                <th className="py-3 px-4 text-right">Butir Utuh</th>
+                <th className="py-3 px-4 text-right">Butir Utuh (Grade A)</th>
                 <th className="py-3 px-4 text-right">Retak</th>
                 <th className="py-3 px-4 text-right">Total Bobot (Kg)</th>
-                <th className="py-3 px-4 text-right">Rata-rata/Telur</th>
-                <th className="py-3 px-4 text-right">Omzet Penjualan</th>
-                <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-right">Bobot/Butir</th>
+                <th className="py-3 px-4 text-center">% Retak</th>
+                <th className="py-3 px-4 text-center">Status Mutu</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {recentEggs.slice(-5).reverse().map((record) => (
-                <tr key={record.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3 px-4 font-semibold text-slate-800">{record.date}</td>
-                  <td className="py-3 px-4 text-slate-600">{record.kandang}</td>
-                  <td className="py-3 px-4 text-right tabular-nums text-slate-800">{formatNumber(record.goodEggsPcs)}</td>
-                  <td className="py-3 px-4 text-right tabular-nums text-rose-600">{record.brokenEggsPcs}</td>
-                  <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900">{record.totalWeightKg} kg</td>
-                  <td className="py-3 px-4 text-right tabular-nums text-slate-600">
-                    {((record.totalWeightKg * 1000) / (record.goodEggsPcs + record.brokenEggsPcs)).toFixed(1)} g
-                  </td>
-                  <td className="py-3 px-4 text-right tabular-nums font-semibold text-emerald-600">
-                    {isOwner ? formatRupiah(record.revenue) : '***'}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      {record.paymentStatus}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {recentEggs.slice(-5).reverse().map((record) => {
+                const totalPcs = record.goodEggsPcs + record.brokenEggsPcs;
+                const avgG = totalPcs > 0 ? ((record.totalWeightKg * 1000) / totalPcs).toFixed(1) : '0';
+                const brokenPct = totalPcs > 0 ? ((record.brokenEggsPcs / totalPcs) * 100).toFixed(1) : '0';
+
+                return (
+                  <tr key={record.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-semibold text-slate-800">{record.date}</td>
+                    <td className="py-3 px-4 text-slate-600">{record.kandang}</td>
+                    <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-800">{formatNumber(record.goodEggsPcs)}</td>
+                    <td className="py-3 px-4 text-right tabular-nums text-rose-600">{record.brokenEggsPcs}</td>
+                    <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900">{record.totalWeightKg} kg</td>
+                    <td className="py-3 px-4 text-right tabular-nums text-slate-700 font-medium">
+                      {avgG} g
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        Number(brokenPct) <= 1.5
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-rose-50 text-rose-700 border border-rose-200'
+                      }`}>
+                        {brokenPct}%
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Grade A Konsumsi
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+
+        {/* Gambar Dibawah Panen Telur */}
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row items-center gap-4">
+          <div className="w-full md:w-56 h-36 rounded-xl overflow-hidden shadow-xs border border-slate-200 shrink-0">
+            <img
+              src="/src/assets/images/quail_egg_harvest_farm_1792593478247.jpg"
+              alt="Baki Rak Panen Telur Puyuh Hataswa"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover hover:scale-105 transition duration-300"
+            />
+          </div>
+          <div className="flex-1 space-y-1.5 text-xs text-slate-600">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-900 text-sm">Panen Harian Telur Puyuh Hataswa</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                Puyuh Petelur Produktif
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Telur disortir langsung ke atas tray baki telur 90 butir setelah panen pagi dan sore. Seluruh bobot dan butir utuh tersimpan otomatis dan aman di sistem.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] font-medium text-slate-700">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Bobot Standar: 10 - 12 g
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                Target Pecah: &lt; 1.5%
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-blue-500" />
+                Kapasitas Baki Tray: 90 butir / tray
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

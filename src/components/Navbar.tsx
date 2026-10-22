@@ -16,7 +16,7 @@ interface NavbarProps {
   currentRole: UserRole;
   currentUser: UserAccount | null;
   onRoleChange: (role: UserRole) => void;
-  onOpenModal: (type: 'egg' | 'feed' | 'population' | 'expense') => void;
+  onOpenModal: (type: 'egg' | 'eggSale' | 'feed' | 'population' | 'expense' | 'seedSale') => void;
   onResetData: () => void;
   onExportData: () => void;
   onOpenChangePassword: () => void;
@@ -69,22 +69,31 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Zone 2: Middle Status & Actions */}
         <div className="hidden lg:flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 text-[11px] rounded-lg">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold">Tersimpan Otomatis &amp; Aman</span>
+          </div>
+
           <button
             onClick={onExportData}
-            title="Download Cadangan Data JSON"
+            title="Download Cadangan Data JSON Lengkap"
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition"
           >
             <Download className="w-3.5 h-3.5 text-slate-400" />
-            <span>Ekspor Data</span>
+            <span>Cadangkan JSON</span>
           </button>
 
           <button
-            onClick={onResetData}
+            onClick={() => {
+              if (window.confirm('PERINGATAN: Apakah Anda yakin ingin mengembalikan seluruh data ke data demo/sampel bawaan? Seluruh data yang Anda ubah akan ditimpa dengan data demo.')) {
+                onResetData();
+              }
+            }}
             title="Kembalikan data sampel bawaan"
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-rose-950/40 hover:text-rose-300 text-slate-300 text-xs font-medium rounded-lg border border-slate-700 transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Demo</span>
+            <span>Reset ke Demo</span>
           </button>
         </div>
 

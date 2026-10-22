@@ -17,14 +17,32 @@ export interface EggRecord {
   id: string;
   date: string; // YYYY-MM-DD
   timeOfDay: 'Pagi' | 'Sore' | 'Total Hari';
-  kandang: string; // 'Kandang A', 'Kandang B', 'Semua Kandang'
-  goodEggsPcs: number; // Butir Utuh
+  kandang: string; // 'Kandang A', 'Kandang B', 'Kandang Petelur (A & B)'
+  goodEggsPcs: number; // Butir Utuh (Grade A)
   brokenEggsPcs: number; // Butir Retak / Rusak
-  totalWeightKg: number; // Kg
-  sellingPricePerKg: number; // Rp / kg
-  revenue: number; // Rp
+  totalWeightKg: number; // Total Berat Timbangan (Kg)
+  notes?: string;
+  // Optional legacy fields for backward-compatibility
+  sellingPricePerKg?: number;
+  revenue?: number;
   buyerName?: string;
-  paymentStatus: 'Lunas' | 'Piutang' | 'Stok Belum Terjual';
+  paymentStatus?: 'Lunas' | 'Piutang' | 'Stok Belum Terjual';
+}
+
+export interface EggSaleRecord {
+  id: string;
+  date: string; // YYYY-MM-DD
+  buyerName: string; // e.g. "Pengepul Pak Slamet", "Agen Berkah Ibu Ani", "Warung Bu Siti"
+  customerType?: 'Pengepul Besar' | 'Agen Telur' | 'Warung/Retail' | 'Konsumen Langsung';
+  eggGrade: 'Telur Utuh / Grade A (Konsumsi)' | 'Telur Retak / Pecah Kulit (Diskon)' | 'Telur Asin / Olahan' | 'Campur / Partai Besar';
+  quantityKg: number; // Volume penjualan (Kg)
+  quantityPcs?: number; // Estimasi / jumlah butir
+  trayCount?: number; // Jumlah rak / tray
+  pricePerKg: number; // Harga jual per kg (Rp)
+  totalRevenue: number; // Rp (quantityKg * pricePerKg)
+  paymentStatus: 'Lunas' | 'Piutang' | 'DP / Uang Muka';
+  paymentMethod: 'Tunai' | 'Transfer Bank' | 'QRIS';
+  dueDate?: string; // Jatuh tempo jika piutang
   notes?: string;
 }
 
@@ -129,4 +147,7 @@ export interface FarmMetrics {
   feedStockSacksLayer: number;
   feedStockSacksGrower: number;
   feedStockSacks: number;
+  totalEggHarvestKg: number; // Total Kg Panen Kumulatif
+  totalEggSalesKg: number; // Total Kg Terjual
+  eggStockKg: number; // Sisa Stok Telur di Gudang (Kg)
 }

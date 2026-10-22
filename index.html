@@ -5,28 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (function() {
-        const origError = console.error;
-        console.error = function(...args) {
-          if (args.some(arg => typeof arg === 'string' && (arg.includes('[vite]') || arg.includes('WebSocket')))) {
-            return;
+        if (typeof window !== 'undefined') {
+          const OrigWS = window.WebSocket;
+          if (OrigWS) {
+            window.WebSocket = function(url, protocols) {
+              const s = String(url || '');
+              if (s.includes('/@vite') || s.includes('ais-dev') || s.includes('run.app') || s.includes('localhost')) {
+                const e = new EventTarget();
+                e.url = s;
+                e.readyState = 1;
+                e.send = function() {};
+                e.close = function() { e.readyState = 3; };
+                return e;
+              }
+              return new OrigWS(url, protocols);
+            };
+            window.WebSocket.prototype = OrigWS.prototype;
           }
-          if (args.some(arg => arg instanceof Error && (arg.message.includes('[vite]') || arg.message.includes('WebSocket')))) {
-            return;
-          }
-          origError.apply(console, args);
-        };
-        window.addEventListener('error', function(e) {
-          if (e.message && (e.message.includes('WebSocket') || e.message.includes('[vite]'))) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-          }
-        }, true);
-        window.addEventListener('unhandledrejection', function(e) {
-          if (e.reason && (String(e.reason).includes('WebSocket') || String(e.reason).includes('[vite]'))) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-          }
-        }, true);
+          const origErr = console.error;
+          console.error = function(...args) {
+            if (args.some(a => (typeof a === 'string' && (a.includes('[vite]') || a.includes('WebSocket'))) || (a && typeof a === 'object' && a.message && (a.message.includes('[vite]') || a.message.includes('WebSocket'))))) {
+              return;
+            }
+            origErr.apply(console, args);
+          };
+          window.addEventListener('error', function(e) {
+            if (e.message && (e.message.includes('WebSocket') || e.message.includes('[vite]'))) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+            }
+          }, true);
+          window.addEventListener('unhandledrejection', function(e) {
+            if (e.reason && (String(e.reason).includes('WebSocket') || String(e.reason).includes('[vite]'))) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+            }
+          }, true);
+        }
       })();
     </script>
     <title>Sahabat Puyuh Hataswa - Sistem Manajemen &amp; Analisis Keuangan</title>
