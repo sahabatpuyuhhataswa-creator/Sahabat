@@ -8,6 +8,7 @@ interface SeedSalesViewProps {
   currentRole: UserRole;
   onOpenModal: () => void;
   onDeleteRecord: (id: string) => void;
+  onOpenInvoiceModal?: (sale?: QuailSeedSaleRecord) => void;
 }
 
 export const SeedSalesView: React.FC<SeedSalesViewProps> = ({
@@ -15,6 +16,7 @@ export const SeedSalesView: React.FC<SeedSalesViewProps> = ({
   currentRole,
   onOpenModal,
   onDeleteRecord,
+  onOpenInvoiceModal,
 }) => {
   const isOwner = currentRole === 'owner';
   const [searchTerm, setSearchTerm] = useState('');
@@ -186,6 +188,7 @@ export const SeedSalesView: React.FC<SeedSalesViewProps> = ({
                 <th className="py-3 px-4">Kota Tujuan</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-center">Aksi</th>
+                <th className="py-3 px-4 text-center">Faktur</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -230,6 +233,15 @@ export const SeedSalesView: React.FC<SeedSalesViewProps> = ({
                         title="Hapus Data"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <button
+                        onClick={() => onOpenInvoiceModal?.(r)}
+                        className="p-1 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition font-bold text-[11px]"
+                        title="Buat Faktur"
+                      >
+                        📄 Faktur
                       </button>
                     </td>
                   </tr>

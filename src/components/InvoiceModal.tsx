@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CustomerRecord, EggSaleRecord } from '../types/quail';
+import { CustomerRecord, EggSaleRecord, QuailSeedSaleRecord } from '../types/quail';
 import { formatRupiah, formatNumber, formatDecimal } from '../utils/calculations';
 import {
   X,
@@ -23,15 +23,15 @@ import {
 interface InvoiceItem {
   id: string;
   description: string;
-  quantityKg: number;
-  quantityPcs: number;
-  pricePerKg: number;
+  quantity: number; // Kg or Birds
+  secondaryQuantity: number; // Pcs or Boxes
+  pricePerUnit: number; // Rp/Kg or Rp/Bird
 }
 
 interface InvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  saleRecord?: EggSaleRecord | null;
+  saleRecord?: EggSaleRecord | QuailSeedSaleRecord | null;
   customer?: CustomerRecord | null;
 }
 
@@ -43,11 +43,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 }) => {
   const todayStr = new Date().toISOString().split('T')[0];
 
+  // Load saved config
+  const savedConfig = JSON.parse(localStorage.getItem('sph_farm_config') || '{}');
+
   // Editable Farm Header details
-  const [farmName, setFarmName] = useState('SAHABAT PUYUH HATASWA');
-  const [farmAddress, setFarmAddress] = useState('Jl. Agribisnis Puyuh No. 12, Pakembinangun, Pakem, Sleman, D.I. Yogyakarta');
-  const [farmPhone, setFarmPhone] = useState('0812-3456-7890');
-  const [farmEmail, setFarmEmail] = useState('info@sahabatpuyuhhataswa.com');
+  const [farmName, setFarmName] = useState(savedConfig.farmName || 'SAHABAT PUYUH HATASWA');
+  const [farmAddress, setFarmAddress] = useState(savedConfig.address || 'Jl. Agribisnis Puyuh No. 12, Pakembinangun, Pakem, Sleman, D.I. Yogyakarta');
+  const [farmPhone, setFarmPhone] = useState(savedConfig.phone || '0812-3456-7890');
+  const [farmEmail, setFarmEmail] = useState(savedConfig.email || 'info@sahabatpuyuhhataswa.com');
 
   // Invoice Meta
   const [invoiceNo, setInvoiceNo] = useState(
@@ -61,28 +64,33 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   const [buyerPhone, setBuyerPhone] = useState(customer?.phone || '081234567890');
   const [buyerAddress, setBuyerAddress] = useState(customer?.address || 'Pasar Tradisional / Warung Kuliner Sleman');
 
-  // Line Items
-  const initialQtyKg = saleRecord?.quantityKg || 25;
-  const initialPrice = saleRecord?.pricePerKg || customer?.defaultPricePerKg || 33000;
-  const initialGrade = saleRecord?.eggGrade || 'Telur Puyuh Utuh / Grade A (Konsumsi Segar)';
+  const isSeedSale = saleRecord && 'seedType' in saleRecord;
+  const initialQty = isSeedSale ? (saleRecord as QuailSeedSaleRecord).quantityBirds : (saleRecord as EggSaleRecord).quantityKg || 25;
+  const initialPrice = isSeedSale ? (saleRecord as QuailSeedSaleRecord).pricePerBird : (saleRecord as EggSaleRecord).pricePerKg || customer?.defaultPricePerKg || 33000;
+  const initialDesc = isSeedSale ? (saleRecord as QuailSeedSaleRecord).seedType : (saleRecord as EggSaleRecord).eggGrade || 'Telur Puyuh Utuh / Grade A (Konsumsi Segar)';
+  const initialSecondary = isSeedSale ? (saleRecord as QuailSeedSaleRecord).boxCount : (saleRecord as EggSaleRecord).quantityPcs || Math.round(initialQty * 90);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 'item-1',
-      description: initialGrade,
-      quantityKg: initialQtyKg,
-      quantityPcs: saleRecord?.quantityPcs || Math.round(initialQtyKg * 90),
-      pricePerKg: initialPrice,
+      description: initialDesc,
+      quantity: initialQty,
+      secondaryQuantity: initialSecondary,
+      pricePerUnit: initialPrice,
     },
   ]);
 
   // Payment Status & Method
   const [paymentStatus, setPaymentStatus] = useState<'Lunas' | 'Piutang' | 'DP / Uang Muka'>(saleRecord?.paymentStatus || 'Lunas');
   const [paymentMethod, setPaymentMethod] = useState<'Tunai' | 'Transfer Bank' | 'QRIS'>(saleRecord?.paymentMethod || 'Transfer Bank');
-  const [bankDetails, setBankDetails] = useState('BCA: 0123-456-789 a.n. Sahabat Puyuh Hataswa\nMandiri: 137-00-1234567-8 a.n. Hataswa Farm');
+  const [bankDetails, setBankDetails] = useState(
+    savedConfig.bankName 
+      ? `${savedConfig.bankName}: ${savedConfig.accountNumber} a.n. ${savedConfig.accountHolderName}`
+      : 'BCA: 0123-456-789 a.n. Sahabat Puyuh Hataswa\nMandiri: 137-00-1234567-8 a.n. Hataswa Farm'
+  );
   const [notes, setNotes] = useState(saleRecord?.notes || 'Terima kasih atas kerja sama dan kepercayaan Anda.');
   const [signerName, setSignerName] = useState('Budi Santoso (Manajer Pemasaran Farm)');
-  const [signerCity, setSignerCity] = useState('Sleman');
+  const [signerCity, setSignerCity] = useState(savedConfig.address ? savedConfig.address.split(',').slice(-2, -1)[0]?.trim() || 'Sleman' : 'Sleman');
   const [signerDate, setSignerDate] = useState(saleRecord?.date || todayStr);
 
   const [activeTab, setActiveTab] = useState<'edit' | 'whatsapp' | 'thermal' | 'a4'>('edit');
@@ -91,7 +99,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   if (!isOpen) return null;
 
   // Calculations
-  const totalOmzet = items.reduce((sum, item) => sum + item.quantityKg * item.pricePerKg, 0);
+  const totalOmzet = items.reduce((sum, item) => sum + item.quantity * item.pricePerUnit, 0);
 
   const handleAddItem = () => {
     setItems((prev) => [
@@ -131,7 +139,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   const generateWhatsAppMessage = () => {
     let itemsText = '';
     items.forEach((item, idx) => {
-      itemsText += `\n${idx + 1}. *${item.description}*\n   Volume: ${formatDecimal(item.quantityKg)} Kg (~${formatNumber(item.quantityPcs)} butir)\n   Harga: ${formatRupiah(item.pricePerKg)}/kg | Subtotal: *${formatRupiah(item.quantityKg * item.pricePerKg)}*`;
+      itemsText += `\n${idx + 1}. *${item.description}*\n   Jumlah: ${formatDecimal(item.quantity)} ${isSeedSale ? 'ekor' : 'Kg'} (${isSeedSale ? item.secondaryQuantity + ' boks' : '~' + formatNumber(item.secondaryQuantity) + ' butir'})\n   Harga: ${formatRupiah(item.pricePerUnit)}/${isSeedSale ? 'ekor' : 'kg'} | Subtotal: *${formatRupiah(item.quantity * item.pricePerUnit)}*`;
     });
 
     const text = `*${farmName}*
@@ -444,29 +452,28 @@ _Terima kasih telah mempercayakan kebutuhan telur puyuh segar Anda kepada ${farm
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block font-semibold text-slate-600 mb-0.5 text-[10px]">Jumlah (Kg):</label>
+                        <label className="block font-semibold text-slate-600 mb-0.5 text-[10px]">Jumlah ({isSeedSale ? 'Ekor' : 'Kg'}):</label>
                         <input
                           type="number"
-                          step="0.5"
-                          value={item.quantityKg}
-                          onChange={(e) => handleItemChange(item.id, 'quantityKg', parseFloat(e.target.value) || 0)}
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
                           className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold tabular-nums"
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block font-semibold text-slate-600 mb-0.5 text-[10px]">Harga / Kg (Rp):</label>
+                        <label className="block font-semibold text-slate-600 mb-0.5 text-[10px]">Harga / {isSeedSale ? 'Ekor' : 'Kg'} (Rp):</label>
                         <input
                           type="number"
                           step="500"
-                          value={item.pricePerKg}
-                          onChange={(e) => handleItemChange(item.id, 'pricePerKg', parseFloat(e.target.value) || 0)}
+                          value={item.pricePerUnit}
+                          onChange={(e) => handleItemChange(item.id, 'pricePerUnit', parseFloat(e.target.value) || 0)}
                           className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold tabular-nums"
                         />
                       </div>
                       <div className="md:col-span-2 text-right">
                         <span className="block font-semibold text-slate-500 text-[10px]">Subtotal:</span>
                         <span className="font-extrabold text-emerald-700 text-xs">
-                          {formatRupiah(item.quantityKg * item.pricePerKg)}
+                          {formatRupiah(item.quantity * item.pricePerUnit)}
                         </span>
                       </div>
                       <div className="md:col-span-1 text-center">
@@ -619,10 +626,10 @@ _Terima kasih telah mempercayakan kebutuhan telur puyuh segar Anda kepada ${farm
                     <div key={item.id} className="space-y-0.5 pb-2 border-b border-slate-100 last:border-b-0">
                       <div className="font-bold text-[11px]">{item.description}</div>
                       <div className="flex justify-between text-[11px]">
-                        <span>{formatDecimal(item.quantityKg)} kg x {formatRupiah(item.pricePerKg)}</span>
-                        <span className="font-bold">{formatRupiah(item.quantityKg * item.pricePerKg)}</span>
+                        <span>{formatDecimal(item.quantity)} {isSeedSale ? 'ekor' : 'kg'} x {formatRupiah(item.pricePerUnit)}</span>
+                        <span className="font-bold">{formatRupiah(item.quantity * item.pricePerUnit)}</span>
                       </div>
-                      <div className="text-[10px] text-slate-500">(~{formatNumber(item.quantityPcs)} butir telur)</div>
+                      <div className="text-[10px] text-slate-500">({isSeedSale ? item.secondaryQuantity + ' boks' : '~' + formatNumber(item.secondaryQuantity) + ' butir'})</div>
                     </div>
                   ))}
                 </div>
@@ -734,11 +741,11 @@ _Terima kasih telah mempercayakan kebutuhan telur puyuh segar Anda kepada ${farm
                       <tr key={item.id} className="hover:bg-slate-50">
                         <td className="py-3 px-3 font-bold text-slate-500">{idx + 1}</td>
                         <td className="py-3 px-3 font-semibold text-slate-900">{item.description}</td>
-                        <td className="py-3 px-3 text-right tabular-nums">{formatDecimal(item.quantityKg)} kg</td>
-                        <td className="py-3 px-3 text-right tabular-nums text-slate-600">~{formatNumber(item.quantityPcs)} btr</td>
-                        <td className="py-3 px-3 text-right tabular-nums">{formatRupiah(item.pricePerKg)}</td>
+                        <td className="py-3 px-3 text-right tabular-nums">{formatDecimal(item.quantity)} {isSeedSale ? 'ekor' : 'kg'}</td>
+                        <td className="py-3 px-3 text-right tabular-nums text-slate-600">{isSeedSale ? item.secondaryQuantity + ' boks' : '~' + formatNumber(item.secondaryQuantity) + ' btr'}</td>
+                        <td className="py-3 px-3 text-right tabular-nums">{formatRupiah(item.pricePerUnit)}</td>
                         <td className="py-3 px-3 text-right tabular-nums font-bold text-slate-900">
-                          {formatRupiah(item.quantityKg * item.pricePerKg)}
+                          {formatRupiah(item.quantity * item.pricePerUnit)}
                         </td>
                       </tr>
                     ))}

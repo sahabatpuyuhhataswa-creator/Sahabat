@@ -38,6 +38,7 @@ import { AttendanceView } from './components/AttendanceView';
 import { ExpensesView } from './components/ExpensesView';
 import { ProfitLossView } from './components/ProfitLossView';
 import { AiAdvisorView } from './components/AiAdvisorView';
+import { SettingsView } from './components/SettingsView';
 import { ModalForm } from './components/ModalForm';
 import { AttendanceModal } from './components/AttendanceModal';
 import { LoginScreen } from './components/LoginScreen';
@@ -92,7 +93,7 @@ export default function App() {
   // Voice Input & Invoice Modal States
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
-  const [invoiceSaleRecord, setInvoiceSaleRecord] = useState<EggSaleRecord | null>(null);
+  const [invoiceSaleRecord, setInvoiceSaleRecord] = useState<EggSaleRecord | QuailSeedSaleRecord | null>(null);
 
   // Feed Stock & Scale Up Modal States
   const [isEditFeedStockOpen, setIsEditFeedStockOpen] = useState(false);
@@ -318,7 +319,7 @@ export default function App() {
   };
 
   const handleTabChangeWithSecurity = (tab: TabKey) => {
-    const isOwnerOnly = tab === 'operasional' || tab === 'labarugi' || tab === 'ai-advisor';
+    const isOwnerOnly = tab === 'operasional' || tab === 'labarugi' || tab === 'ai-advisor' || tab === 'pengaturan';
     if (isOwnerOnly && currentRole !== 'owner') {
       setTargetOwnerTab(tab);
       setIsOwnerVerifyOpen(true);
@@ -698,6 +699,10 @@ export default function App() {
               currentRole={currentRole}
               onOpenModal={() => setModalType('seedSale')}
               onDeleteRecord={handleDeleteSeedSale}
+              onOpenInvoiceModal={(sale) => {
+                setInvoiceSaleRecord(sale || null);
+                setIsInvoiceModalOpen(true);
+              }}
             />
           )}
 
@@ -775,6 +780,9 @@ export default function App() {
               currentRole={currentRole}
               onSwitchToOwner={() => handleRoleChange('owner')}
             />
+          )}
+          {activeTab === 'pengaturan' && (
+            <SettingsView />
           )}
         </main>
       </div>

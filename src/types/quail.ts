@@ -97,11 +97,13 @@ export interface QuailSeedSaleRecord {
 export interface ExpenseRecord {
   id: string;
   date: string;
-  category: 'Listrik & Air' | 'Vitamin & Obat / Vaksin' | 'Gaji Karyawan' | 'Kemasan Tray & Mika' | 'Sekam & Kebersihan' | 'Perawatan Kandang' | 'Pemanas Brooding (Gas/Listrik)' | 'Lain-lain';
+  category: 'Listrik & Air' | 'Vitamin & Obat / Vaksin' | 'Gaji Karyawan' | 'Kemasan Tray & Mika' | 'Sekam & Kebersihan' | 'Perawatan Kandang' | 'Pemanas Brooding (Gas/Listrik)' | 'Transportasi' | 'Lain-lain';
   description: string;
   amount: number;
   paymentMethod: 'Transfer Bank' | 'Tunai';
   receiptNo?: string;
+  staffName?: string;
+  expenseType?: 'Biasa' | 'Kasbon' | 'Gaji';
 }
 
 export interface StaffAttendanceRecord {
@@ -179,6 +181,17 @@ export interface ExpansionPlan {
   monthlyOpCost: number;
   notes?: string;
   createdAt: string;
+}
+
+export interface FarmConfig {
+  farmName: string;
+  address: string;
+  phone: string;
+  website: string;
+  email: string;
+  bankName: string;
+  accountNumber: string;
+  accountHolderName: string;
 }
 
 export interface FarmAlert {

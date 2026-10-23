@@ -109,12 +109,14 @@ export const ModalForm: React.FC<ModalFormProps> = ({
   // EXPENSE FORM STATE
   const [expDate, setExpDate] = useState(todayStr);
   const [expCategory, setExpCategory] = useState<
-    'Listrik & Air' | 'Vitamin & Obat / Vaksin' | 'Gaji Karyawan' | 'Kemasan Tray & Mika' | 'Sekam & Kebersihan' | 'Perawatan Kandang' | 'Pemanas Brooding (Gas/Listrik)' | 'Lain-lain'
+    'Listrik & Air' | 'Vitamin & Obat / Vaksin' | 'Gaji Karyawan' | 'Kemasan Tray & Mika' | 'Sekam & Kebersihan' | 'Perawatan Kandang' | 'Pemanas Brooding (Gas/Listrik)' | 'Transportasi' | 'Lain-lain'
   >('Vitamin & Obat / Vaksin');
   const [expDesc, setExpDesc] = useState('Vitamin Egg Stimulant + Brooding Gas');
   const [expAmount, setExpAmount] = useState(150000);
   const [expMethod, setExpMethod] = useState<'Transfer Bank' | 'Tunai'>('Tunai');
   const [expReceipt, setExpReceipt] = useState('');
+  const [expStaffName, setExpStaffName] = useState('Karyawan 1');
+  const [expType, setExpType] = useState<'Biasa' | 'Kasbon' | 'Gaji'>('Biasa');
 
   const handleFlockTypeChange = (newType: 'Layer (Petelur)' | 'Pembesaran (Starter/Grower)') => {
     setFlockType(newType);
@@ -233,6 +235,8 @@ export const ModalForm: React.FC<ModalFormProps> = ({
         amount: Number(expAmount),
         paymentMethod: expMethod,
         receiptNo: expReceipt || undefined,
+        staffName: expCategory === 'Gaji Karyawan' ? expStaffName : undefined,
+        expenseType: expCategory === 'Gaji Karyawan' ? expType : 'Biasa',
       });
     }
     onClose();
@@ -1022,9 +1026,39 @@ export const ModalForm: React.FC<ModalFormProps> = ({
                     <option value="Kemasan Tray & Mika">Kemasan Tray, Mika &amp; Boks DOQ</option>
                     <option value="Sekam & Kebersihan">Sekam &amp; Kebersihan</option>
                     <option value="Perawatan Kandang">Perawatan Kandang</option>
+                    <option value="Transportasi">Transportasi</option>
                     <option value="Lain-lain">Lain-lain</option>
                   </select>
                 </div>
+
+              {expCategory === 'Gaji Karyawan' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-700 font-medium mb-1">Nama Staf</label>
+                    <select
+                      value={expStaffName}
+                      onChange={(e) => setExpStaffName(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium"
+                    >
+                      <option value="Karyawan 1">Karyawan 1</option>
+                      <option value="Karyawan 2">Karyawan 2</option>
+                      <option value="Karyawan 3">Karyawan 3</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 font-medium mb-1">Tipe Pembayaran</label>
+                    <select
+                      value={expType}
+                      onChange={(e: any) => setExpType(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-bold"
+                    >
+                      <option value="Gaji">Gaji Pokok / Bonus</option>
+                      <option value="Kasbon">Kasbon (Pinjaman)</option>
+                      <option value="Biasa">Biasa / Lainnya</option>
+                    </select>
+                  </div>
+                </div>
+              )}
               </div>
 
               <div>

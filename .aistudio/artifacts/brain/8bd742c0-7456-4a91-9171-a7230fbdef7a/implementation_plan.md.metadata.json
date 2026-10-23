@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana implementasi perbaikan sinkronisasi data APK, perbaikan pemuatan gambar di HP/PWA, fitur edit langsung Populasi Pembesar di Dashboard & Sensus, serta fitur Download/Install Aplikasi ke HP Android.",
-  "updatedAt":  "2026-10-22T02:59:30.184697488Z",
+  "summary":  "Implementation plan for configuring farm details, bank info, seedling invoices, daily feed tracking, updated FCR simulation, and scale-up notification.",
+  "updatedAt":  "2026-10-22T19:36:55.290014732Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

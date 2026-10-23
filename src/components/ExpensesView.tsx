@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ExpenseRecord, UserRole } from '../types/quail';
 import { formatRupiah } from '../utils/calculations';
+import { ExpenseDetailModal } from './ExpenseDetailModal';
+import { SalaryDashboard } from './SalaryDashboard';
 import { Plus, Search, Trash2, Receipt, ShieldAlert, Edit2 } from 'lucide-react';
 
 interface ExpensesViewProps {
@@ -23,6 +25,17 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const isOwner = currentRole === 'owner';
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
+  
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
+  const [modalRecords, setModalRecords] = useState<ExpenseRecord[]>([]);
+  const [modalTitle, setModalTitle] = useState('');
+
+  const openDetailModal = (title: string, filteredRecords: ExpenseRecord[]) => {
+    setModalTitle(title);
+    setModalRecords(filteredRecords);
+    setIsDetailModalOpen(true);
+  };
 
   if (!isOwner) {
     return (
@@ -89,38 +102,51 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
       {/* Expense Summary Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:bg-slate-50" onClick={() => openDetailModal('Total Beban Operasional', records)}>
           <span className="text-xs font-semibold text-slate-500">Total Beban Operasional</span>
           <div className="text-xl md:text-2xl font-bold text-slate-900 mt-1 tabular-nums">
             {formatRupiah(totalExpense)}
           </div>
-          <span className="text-[11px] text-slate-500">Di luar biaya pakan puyuh</span>
+          <span className="text-[11px] text-slate-500">Klik untuk detail</span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:bg-slate-50" onClick={() => setIsSalaryModalOpen(true)}>
           <span className="text-xs font-semibold text-slate-500">Gaji Petugas Kandang</span>
           <div className="text-xl md:text-2xl font-bold text-slate-900 mt-1 tabular-nums">
             {formatRupiah(categoryTotals['Gaji Karyawan'] || 0)}
           </div>
-          <span className="text-[11px] text-slate-500">2 orang tenaga kerja tetap</span>
+          <span className="text-[11px] text-slate-500">Klik untuk detail</span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:bg-slate-50" onClick={() => openDetailModal('Vitamin & Obat', records.filter(r => r.category === 'Vitamin & Obat / Vaksin'))}>
           <span className="text-xs font-semibold text-slate-500">Vitamin, Obat &amp; Vaksin</span>
           <div className="text-xl md:text-2xl font-bold text-slate-900 mt-1 tabular-nums">
             {formatRupiah(categoryTotals['Vitamin & Obat / Vaksin'] || 0)}
           </div>
-          <span className="text-[11px] text-slate-500">Egg stimulant &amp; antistres</span>
+          <span className="text-[11px] text-slate-500">Klik untuk detail</span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:bg-slate-50" onClick={() => openDetailModal('Listrik, Air & Kemasan', records.filter(r => r.category === 'Listrik & Air' || r.category === 'Kemasan Tray & Mika'))}>
           <span className="text-xs font-semibold text-slate-500">Listrik, Air &amp; Kemasan</span>
           <div className="text-xl md:text-2xl font-bold text-slate-900 mt-1 tabular-nums">
             {formatRupiah((categoryTotals['Listrik & Air'] || 0) + (categoryTotals['Kemasan Tray & Mika'] || 0))}
           </div>
-          <span className="text-[11px] text-slate-500">Pencahayaan &amp; Egg tray kertas</span>
+          <span className="text-[11px] text-slate-500">Klik untuk detail</span>
         </div>
       </div>
+      
+      <ExpenseDetailModal 
+       isOpen={isDetailModalOpen} 
+       onClose={() => setIsDetailModalOpen(false)} 
+       title={modalTitle}
+       records={modalRecords}
+      />
+
+      <SalaryDashboard 
+       isOpen={isSalaryModalOpen} 
+       onClose={() => setIsSalaryModalOpen(false)} 
+       records={records}
+      />
 
       {/* Expenses Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
@@ -150,6 +176,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
               <option value="Kemasan Tray & Mika">Kemasan Tray</option>
               <option value="Sekam & Kebersihan">Sekam &amp; Kebersihan</option>
               <option value="Perawatan Kandang">Perawatan Kandang</option>
+              <option value="Transportasi">Transportasi</option>
               <option value="Lain-lain">Lain-lain</option>
             </select>
           </div>

@@ -26,7 +26,8 @@ export type TabKey =
   | 'absensi'
   | 'operasional'
   | 'labarugi'
-  | 'ai-advisor';
+  | 'ai-advisor'
+  | 'pengaturan';
 
 interface SidebarProps {
   activeTab: TabKey;
@@ -240,6 +241,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 AI
               </span>
             )}
+          </button>
+          <button
+            onClick={() => handleSelectTab('pengaturan', false)}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition text-left ${
+              activeTab === 'pengaturan'
+                ? 'bg-slate-800 text-white font-semibold border border-slate-700/60 shadow-xs'
+                : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-4 h-4 text-slate-400">⚙️</span>
+              <span>Pengaturan</span>
+            </div>
           </button>
         </nav>
 

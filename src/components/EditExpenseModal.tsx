@@ -21,6 +21,8 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState(0);
   const [receiptNo, setReceiptNo] = useState('');
+  const [staffName, setStaffName] = useState('');
+  const [expenseType, setExpenseType] = useState<'Biasa' | 'Kasbon' | 'Gaji'>('Biasa');
 
   useEffect(() => {
     if (record) {
@@ -29,6 +31,8 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
       setDescription(record.description);
       setAmount(record.amount);
       setReceiptNo(record.receiptNo || '');
+      setStaffName(record.staffName || '');
+      setExpenseType(record.expenseType || 'Biasa');
     }
   }, [record, isOpen]);
 
@@ -43,6 +47,8 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
       description,
       amount: Number(amount),
       receiptNo: receiptNo || undefined,
+      staffName: category === 'Gaji Karyawan' ? staffName : undefined,
+      expenseType: category === 'Gaji Karyawan' ? expenseType : 'Biasa',
     });
     onClose();
   };
@@ -96,6 +102,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 <option value="Kemasan Tray & Mika">Kemasan Tray</option>
                 <option value="Sekam & Kebersihan">Sekam &amp; Kebersihan</option>
                 <option value="Perawatan Kandang">Perawatan Kandang</option>
+                <option value="Transportasi">Transportasi</option>
                 <option value="Lainnya">Lainnya</option>
               </select>
             </div>
@@ -114,6 +121,39 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
             />
           </div>
+          
+          {category === 'Gaji Karyawan' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  Nama Staf:
+                </label>
+                <select
+                  value={staffName}
+                  onChange={(e) => setStaffName(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                >
+                  <option value="Karyawan 1">Karyawan 1</option>
+                  <option value="Karyawan 2">Karyawan 2</option>
+                  <option value="Karyawan 3">Karyawan 3</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  Tipe Pengeluaran:
+                </label>
+                <select
+                  value={expenseType}
+                  onChange={(e) => setExpenseType(e.target.value as any)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold"
+                >
+                  <option value="Biasa">Biasa</option>
+                  <option value="Kasbon">Kasbon</option>
+                  <option value="Gaji">Gaji</option>
+                </select>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
