@@ -218,7 +218,15 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).catch(() => {
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success && res.savedAt) {
+          // Update ref so we don't treat our own save as a remote update
+          lastCheckedModifiedRef.current = res.savedAt;
+        }
+      })
+      .catch(() => {
         // Offline mode: localStorage already safely saved the data
       });
     }, 1200);
@@ -249,6 +257,11 @@ export default function App() {
   // Cross-server sync polling effect (detects updates from other servers/devices)
   useEffect(() => {
     const pollServerSync = async () => {
+      // Don't poll if user is actively in a modal to avoid overwriting their current input
+      if (modalType || isEditEggOpen || isEditEggSaleOpen || isEditFeedOpen || isEditExpenseOpen || isEditPopulationOpen) {
+        return;
+      }
+
       try {
         const response = await fetch('/api/farm-data');
         const res = await response.json();
@@ -256,29 +269,48 @@ export default function App() {
           if (!lastCheckedModifiedRef.current) {
             lastCheckedModifiedRef.current = res.lastModified;
           } else if (res.lastModified !== lastCheckedModifiedRef.current && res.data) {
-            setRemotePayload(res.data);
-            setRemoteUpdateAvailable(true);
+            // Auto-apply if no modal is open, to keep multiple devices in sync "live"
+            const remoteData = res.data;
+            if (remoteData.eggRecords) setEggRecords(remoteData.eggRecords);
+            if (remoteData.eggSaleRecords) setEggSaleRecords(remoteData.eggSaleRecords);
+            if (remoteData.feedRecords) setFeedRecords(remoteData.feedRecords);
+            if (remoteData.populationRecords) setPopulationRecords(remoteData.populationRecords);
+            if (remoteData.seedSaleRecords) setSeedSaleRecords(remoteData.seedSaleRecords);
+            if (remoteData.expenseRecords) setExpenseRecords(remoteData.expenseRecords);
+            if (remoteData.attendanceRecords) setAttendanceRecords(remoteData.attendanceRecords);
+            
+            lastCheckedModifiedRef.current = res.lastModified;
+            setRemoteUpdateAvailable(false); // Hide banner if it was showing
+            console.log('🔄 Data peternakan diperbarui otomatis dari server.');
           }
         }
       } catch {}
     };
 
-    const interval = setInterval(pollServerSync, 12000);
+    // Poll more frequently (every 5 seconds) for a "real-time" feel across devices
+    const interval = setInterval(pollServerSync, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [modalType, isEditEggOpen, isEditEggSaleOpen, isEditFeedOpen, isEditExpenseOpen, isEditPopulationOpen]);
 
   const handleApplyRemoteSync = () => {
-    if (remotePayload) {
-      if (remotePayload.eggRecords) setEggRecords(remotePayload.eggRecords);
-      if (remotePayload.eggSaleRecords) setEggSaleRecords(remotePayload.eggSaleRecords);
-      if (remotePayload.feedRecords) setFeedRecords(remotePayload.feedRecords);
-      if (remotePayload.populationRecords) setPopulationRecords(remotePayload.populationRecords);
-      if (remotePayload.seedSaleRecords) setSeedSaleRecords(remotePayload.seedSaleRecords);
-      if (remotePayload.expenseRecords) setExpenseRecords(remotePayload.expenseRecords);
-      if (remotePayload.attendanceRecords) setAttendanceRecords(remotePayload.attendanceRecords);
-      setRemoteUpdateAvailable(false);
-      showToast('Data berhasil disinkronkan dengan server pusat lintas perangkat!');
-    }
+    // This is now mostly a fallback or manual trigger if needed
+    fetch('/api/farm-data')
+      .then(r => r.json())
+      .then(res => {
+        if (res.success && res.data) {
+          const remoteData = res.data;
+          if (remoteData.eggRecords) setEggRecords(remoteData.eggRecords);
+          if (remoteData.eggSaleRecords) setEggSaleRecords(remoteData.eggSaleRecords);
+          if (remoteData.feedRecords) setFeedRecords(remoteData.feedRecords);
+          if (remoteData.populationRecords) setPopulationRecords(remoteData.populationRecords);
+          if (remoteData.seedSaleRecords) setSeedSaleRecords(remoteData.seedSaleRecords);
+          if (remoteData.expenseRecords) setExpenseRecords(remoteData.expenseRecords);
+          if (remoteData.attendanceRecords) setAttendanceRecords(remoteData.attendanceRecords);
+          lastCheckedModifiedRef.current = res.lastModified;
+          setRemoteUpdateAvailable(false);
+          showToast('Data berhasil disinkronkan dengan server!');
+        }
+      });
   };
 
   // Handle successful login

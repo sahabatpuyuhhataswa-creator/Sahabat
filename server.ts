@@ -28,7 +28,7 @@ app.get('/api/farm-data', (_req, res) => {
         return res.json({ 
           success: true, 
           data: parsed,
-          lastModified: stats.mtime.toISOString(),
+          lastModified: parsed._serverSavedAt || stats.mtime.toISOString(),
         });
       }
     }
